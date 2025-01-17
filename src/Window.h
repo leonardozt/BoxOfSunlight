@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 
+#include "BoxOfSunlightError.h"
+
 class Window {
 public:
     Window(int width, int height, const std::string& title);

@@ -3,8 +3,8 @@
 // Callback function for GLFW errors
 void Window::glfwErrorCallback(int error, const char* description)
 {
-    std::cerr << "GLFW Error: " << description << std::endl;
-    throw std::exception();
+    std::string mess = "GLFW Error: " + std::string(description) + "\n";
+    throw BoxOfSunlightError(mess);
 }
 
 Window::Window(int width, int height, const std::string& title)
