@@ -20,11 +20,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Program.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BoxOfSunlightError.h" />
+    <ClInclude Include="src\Program.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\FragmentShader.frag" />
+    <None Include="src\shaders\VertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
