@@ -43,7 +43,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\VertexShader.vert" />
-    <None Include="src\shaders\FragmentShader.frag" />
+    <None Include="src\shaders\screen.vert" />
+    <None Include="src\shaders\screen.frag" />
+    <None Include="src\shaders\base.vert" />
+    <None Include="src\shaders\base.frag" />
   </ItemGroup>
 </Project>

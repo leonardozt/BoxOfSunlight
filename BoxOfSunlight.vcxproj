@@ -31,8 +31,10 @@
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\FragmentShader.frag" />
-    <None Include="src\shaders\VertexShader.vert" />
+    <None Include="src\shaders\base.frag" />
+    <None Include="src\shaders\base.vert" />
+    <None Include="src\shaders\screen.frag" />
+    <None Include="src\shaders\screen.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
