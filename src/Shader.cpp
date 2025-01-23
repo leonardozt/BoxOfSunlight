@@ -41,7 +41,6 @@ namespace BOSL {
         {
             sourceCode += lineBuffer + '\n';
         }
-        //sourceCode += '\0';
 
         file.close();
 
@@ -55,6 +54,13 @@ namespace BOSL {
 
     Shader::~Shader()
     {
+        // TODO: add copy/move constructor so that
+        // a Shader's destructor doesn't get called
+        // when you add it into a std::vector
+        
+        // Do this for all other classes that
+        // have a destructor as well
+
         //glDeleteShader(object);
     }
 }

@@ -8,13 +8,16 @@ namespace BOSL {
 	class Program
 	{
 	public:
-		Program(const std::vector<Shader> shaders);
+		Program();
 		~Program();
 
+		void init();
+		void link(const std::vector<Shader>& shaders);
 		void use() const;
-		GLuint getObject() const;
-
+		void stopUsing() const;
 	private:
+		bool initialized;
+		bool linked;
 		GLuint object;
 	};
 }

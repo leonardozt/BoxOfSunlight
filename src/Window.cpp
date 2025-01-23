@@ -19,6 +19,9 @@ Window::Window(int width, int height, const std::string& title)
     glfwWindow = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 
     glfwMakeContextCurrent(glfwWindow);
+
+    // Swap the buffers immediately when glfwSwapBuffers() is called
+    glfwSwapInterval(0);
 }
 
 void Window::update()
