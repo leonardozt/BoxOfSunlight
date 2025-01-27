@@ -14,7 +14,7 @@ namespace BOSL
 		~ScreenQuad();
 
 		void init();
-		void draw(const Program& shaderProgram);
+		void draw(const Program& shaderProgram) const;
 	private:
 		bool initialized;
 

@@ -61,8 +61,8 @@ int main()
         renderer.init();
         
         // timing 
-        float deltaTime = 0.0f; // time between current frame and last frame
-        float lastFrame = 0.0f; // time of last frame
+        double deltaTime = 0.0f; // time between current frame and last frame
+        double lastFrame = 0.0f; // time of last frame
         int fCounter = 0;
         
         while (!window.shouldClose())
@@ -71,7 +71,7 @@ int main()
             window.update();
 
             // Set frame time
-            float currentFrame = glfwGetTime();
+            double currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
             // Print only every 500 frames

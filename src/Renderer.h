@@ -4,6 +4,7 @@
 #include "BoxOfSunlightError.h"
 #include "ScreenQuad.h"
 #include "Program.h"
+#include "Camera.h"
 
 #include <vector>
 
@@ -23,6 +24,8 @@ namespace BOSL
 		GLuint outputTexture;
 		Program pathTracerShader;
 		Program screenQuadShader;
+
+		Camera camera;
 
 		// Initializes GLEW and sets the needed OpenGL settings
 		static void initGL();

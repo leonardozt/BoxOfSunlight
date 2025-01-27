@@ -2,15 +2,21 @@
 
 namespace BOSL
 { 
-    Renderer::Renderer() : outputTexture(0), initialized(false) { }
+    Renderer::Renderer()
+        : outputTexture(0)
+        , initialized(false)
+        , camera(Camera(glm::vec3(0.0f, 0.0f, 4.0f),
+                        glm::vec3(0.0f, 0.0f, 0.0f),
+                        40.0f))
+    { }
 
     void Renderer::init()
     {
         initGL();
-        initShaders();
         initOutputTexture();
         quad.init();
-        
+        initShaders();
+
         if (!checkComputeLimits()) {
             throw new BoxOfSunlightError("The Compute Shader can't"
                 " render the output image with its current size.");
@@ -32,12 +38,14 @@ namespace BOSL
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        pathTracerShader.stopUsing();
 
         // normal drawing pass
         screenQuadShader.use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, outputTexture);
         quad.draw(screenQuadShader);
+        screenQuadShader.stopUsing();
     }
 
     void Renderer::initGL()
@@ -58,19 +66,31 @@ namespace BOSL
 
     void Renderer::initShaders()
     {
+        // Path Tracer Shader Program
         pathTracerShader.init();
-        screenQuadShader.init();
-
         std::vector<Shader> ptShaders;
         Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
         ptShaders.push_back(computeShader);
         pathTracerShader.link(ptShaders);
 
+        // Output Shader Program
+        screenQuadShader.init();
         std::vector<Shader> screenShaders;
         Shader screenVS(config::shadersDir + "screen.vert", GL_VERTEX_SHADER);
         Shader screenFS(config::shadersDir + "screen.frag", GL_FRAGMENT_SHADER);
         screenShaders.push_back(screenVS); screenShaders.push_back(screenFS);
         screenQuadShader.link(screenShaders);
+
+        // Set values of uniforms
+        pathTracerShader.use();
+        Viewport viewport = camera.getViewport();
+        pathTracerShader.setUniformVec3("camera.position", camera.getPosition());
+        pathTracerShader.setUniformVec3("viewport.horiz", viewport.horiz);
+        pathTracerShader.setUniformVec3("viewport.vert", viewport.vert);
+        pathTracerShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
+        pathTracerShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
+        pathTracerShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+        pathTracerShader.stopUsing();
     }
 
     void Renderer::initOutputTexture()

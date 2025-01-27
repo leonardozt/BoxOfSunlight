@@ -59,4 +59,12 @@ namespace BOSL {
     {
         glUseProgram(0);
     }
+
+    void Program::setUniformVec3(const std::string& name, const glm::vec3& vector) const
+    {
+        if (!initialized) {
+            throw BoxOfSunlightError("Program was not initialized");
+        }
+        glUniform3fv(glGetUniformLocation(object, name.c_str()), 1, &vector[0]);
+    }
 }

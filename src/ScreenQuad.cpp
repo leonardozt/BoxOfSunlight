@@ -9,13 +9,13 @@ namespace BOSL
 	{
         float vertices[] = {
         // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f,   0.0f, 0.0f,
+        -1.0f, -1.0f,   0.0f, 1.0f, 
+         1.0f,  1.0f,   1.0f, 0.0f,
 
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
+         1.0f, -1.0f,   1.0f, 1.0f,
+         1.0f,  1.0f,   1.0f, 0.0f,
+        -1.0f, -1.0f,   0.0f, 1.0f,
         };
 
         glGenVertexArrays(1, &VAO);
@@ -32,7 +32,7 @@ namespace BOSL
         initialized = true;
 	}
 
-    void ScreenQuad::draw(const Program& shaderProgram)
+    void ScreenQuad::draw(const Program& shaderProgram) const
     {
         if (!initialized) {
             throw BoxOfSunlightError("ScreenQuad was not initialized before use.");
