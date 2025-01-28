@@ -3,18 +3,18 @@
 namespace BOSL
 { 
     Renderer::Renderer()
-        : outputTexture(0)
+        : outputTex(0)
         , initialized(false)
-        , camera(Camera(glm::vec3(0.0f, 0.0f, 4.0f),
+        , camera(Camera(glm::vec3(4.0f, 2.0f, 10.0f),
                         glm::vec3(0.0f, 0.0f, 0.0f),
                         40.0f))
-    { }
+        , cubemapImgUnit(0)
+        , outputTexImgUnit(0)
+    {}
 
     void Renderer::init()
     {
         initGL();
-        initOutputTexture();
-        quad.init();
         initShaders();
 
         if (!checkComputeLimits()) {
@@ -34,18 +34,16 @@ namespace BOSL
         glClear(GL_COLOR_BUFFER_BIT);
 
         // dispatch compute shader work groups, one for each pixel
-        pathTracerShader.use();
+        ptShader.use();
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        pathTracerShader.stopUsing();
+        ptShader.stopUsing();
 
         // normal drawing pass
-        screenQuadShader.use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, outputTexture);
-        quad.draw(screenQuadShader);
-        screenQuadShader.stopUsing();
+        quadShader.use();
+        quad.draw(quadShader);
+        quadShader.stopUsing();
     }
 
     void Renderer::initGL()
@@ -66,45 +64,60 @@ namespace BOSL
 
     void Renderer::initShaders()
     {
+        cubemapImgUnit = GL_TEXTURE0;
+        outputTexImgUnit = GL_TEXTURE1;
+
         // Path Tracer Shader Program
-        pathTracerShader.init();
+        ptShader.init();
         std::vector<Shader> ptShaders;
         Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
         ptShaders.push_back(computeShader);
-        pathTracerShader.link(ptShaders);
+        ptShader.link(ptShaders);
 
         // Output Shader Program
-        screenQuadShader.init();
+        quadShader.init();
         std::vector<Shader> screenShaders;
         Shader screenVS(config::shadersDir + "screen.vert", GL_VERTEX_SHADER);
         Shader screenFS(config::shadersDir + "screen.frag", GL_FRAGMENT_SHADER);
         screenShaders.push_back(screenVS); screenShaders.push_back(screenFS);
-        screenQuadShader.link(screenShaders);
+        quadShader.link(screenShaders);
 
         // Set values of uniforms
-        pathTracerShader.use();
+        ptShader.use();
         Viewport viewport = camera.getViewport();
-        pathTracerShader.setUniformVec3("camera.position", camera.getPosition());
-        pathTracerShader.setUniformVec3("viewport.horiz", viewport.horiz);
-        pathTracerShader.setUniformVec3("viewport.vert", viewport.vert);
-        pathTracerShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
-        pathTracerShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
-        pathTracerShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
-        pathTracerShader.stopUsing();
+        ptShader.setUniformVec3("camera.position", camera.getPosition());
+        ptShader.setUniformVec3("viewport.horiz", viewport.horiz);
+        ptShader.setUniformVec3("viewport.vert", viewport.vert);
+        ptShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
+        ptShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
+        ptShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+        ptShader.setUniformInt("cubemap", 0);
+        ptShader.stopUsing();
+        quadShader.use();
+        quadShader.setUniformInt("quadTexture", 1);
+        quadShader.stopUsing();
+
+        // Setup cubemap for compute shader
+        cubemap.init(cubemapImgUnit);
+
+        // Setup screen quad
+        quad.init();
+        // Setup output texture
+        initOutputTexture();
     }
 
     void Renderer::initOutputTexture()
     {
-        glActiveTexture(GL_TEXTURE0);
-        glGenTextures(1, &outputTexture);
-        glBindTexture(GL_TEXTURE_2D, outputTexture);
+        glActiveTexture(outputTexImgUnit);
+        glGenTextures(1, &outputTex);
+        glBindTexture(GL_TEXTURE_2D, outputTex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::windowWidth, config::windowHeight,
             0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindImageTexture(0, outputTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glBindImageTexture(0, outputTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     }
 
     bool Renderer::checkComputeLimits()

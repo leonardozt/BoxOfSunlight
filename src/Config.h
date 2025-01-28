@@ -14,5 +14,6 @@ namespace BOSL
 		const int windowHeight = 600;
 		const std::string windowTitle = "BoxOfSunlight";
 		const std::string shadersDir = "..\\..\\..\\src\\shaders\\";
+		const std::string imagesDir = "..\\..\\..\\images\\";
 	}
 }

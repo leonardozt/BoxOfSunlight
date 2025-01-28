@@ -32,7 +32,7 @@ namespace BOSL
         initialized = true;
 	}
 
-    void ScreenQuad::draw(const Program& shaderProgram) const
+    void ScreenQuad::draw(Program& shaderProgram) const
     {
         if (!initialized) {
             throw BoxOfSunlightError("ScreenQuad was not initialized before use.");

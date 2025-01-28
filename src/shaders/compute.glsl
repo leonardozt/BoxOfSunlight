@@ -3,6 +3,8 @@ layout(local_size_x = 1, local_size_y = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D outputImg;
 
+uniform samplerCube cubemap;
+
 struct Ray {
   vec3 origin;
   // direction
@@ -85,13 +87,14 @@ void main() {
   // -----------------------------------------------------
   // -----------------------------------------------------
   Interval rayT = {0.1, 999};
-  Ray r = rayThroughPixel(pixelCoords);
-  HitInfo rec = triangleHit(r, triangle, rayT); 
+  Ray ray = rayThroughPixel(pixelCoords);
+  HitInfo rec = triangleHit(ray, triangle, rayT); 
   if (rec.hit) {
-    pixel = vec4(1.0, 0.0, 0.0, 1.0);  
+    // mirror
+    vec3 reflectedRay = reflect(ray.dir, rec.normal);
+    pixel = texture(cubemap, reflectedRay);  
   } else {
-    float a = 0.5*(normalize(r.dir).y + 1.0);
-    pixel = vec4( (1.0-a)*vec3(1.0, 1.0, 1.0) + a*vec3(0.5, 0.7, 1.0), 1.0);
+    pixel = texture(cubemap, ray.dir);
   }
 
   // store output pixel color

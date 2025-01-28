@@ -20,7 +20,7 @@ namespace BOSL
 		setUpViewport();
 	}
 
-	glm::vec3 Camera::getPosition()
+	vec3 Camera::getPosition()
 	{
 		return position;
 	}

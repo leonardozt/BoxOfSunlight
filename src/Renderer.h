@@ -5,6 +5,7 @@
 #include "ScreenQuad.h"
 #include "Program.h"
 #include "Camera.h"
+#include "Cubemap.h"
 
 #include <vector>
 
@@ -20,12 +21,20 @@ namespace BOSL
 	private:
 		bool initialized;
 
-		ScreenQuad quad;
-		GLuint outputTexture;
-		Program pathTracerShader;
-		Program screenQuadShader;
+		// contains the output image
+		GLuint outputTex;
+		GLuint outputTexImgUnit;
+		// Shader program used for path tracing
+		Program ptShader;
+		// Shader program used to draw screen quad
+		Program quadShader;
 
 		Camera camera;
+
+		Cubemap cubemap;
+		GLuint cubemapImgUnit;
+
+		ScreenQuad quad;
 
 		// Initializes GLEW and sets the needed OpenGL settings
 		static void initGL();
