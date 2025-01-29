@@ -15,5 +15,8 @@ namespace BOSL
 		const std::string windowTitle = "BoxOfSunlight";
 		const std::string shadersDir = "..\\..\\..\\src\\shaders\\";
 		const std::string imagesDir = "..\\..\\..\\images\\";
+		const glm::vec3 cameraStartPos = glm::vec3(0.0f, 2.5f, 20.0f);
+		const glm::vec3 cameraLookAt = glm::vec3(0.0f, 0.0f, 0.0f);
+		const float cameraVFOV = 30.0f;
 	}
 }

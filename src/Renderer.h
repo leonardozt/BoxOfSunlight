@@ -9,6 +9,9 @@
 
 #include <vector>
 
+// for testing
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace BOSL
 {
 	class Renderer
@@ -45,5 +48,12 @@ namespace BOSL
 		void initOutputTexture();
 		// Checks system's limitations for Compute Shader Workgroups
 		bool checkComputeLimits();
+
+		// Updates uniform variables related to camera.
+		// The corresponding shader program needs to be active.
+		void updateCameraUniforms();
+
+		// for testing
+		float cameraDegree = 0.0f;
 	};
 }

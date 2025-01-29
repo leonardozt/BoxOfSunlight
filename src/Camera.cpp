@@ -10,27 +10,41 @@ using glm::radians;
 namespace BOSL
 {
 	Camera::Camera(vec3 position, vec3 lookAt, float vfov)
-		: position(position), vfov(vfov)
+		: worldUp(vec3(0.0f, 1.0f, 0.0f))
+		, position(position)
+		, lookAt(lookAt)
+		, vfov(vfov)
+		, focalLength(1.0f)
 	{
-		forward = normalize(lookAt - position);
-		worldUp = vec3(0.0f, 1.0f, 0.0f);
-		up = worldUp;
-		right = normalize(cross(forward, up));
-		focalLength = 1.0f;
-		setUpViewport();
+		calculateDirVecs();
+		calculateViewport();
 	}
 
-	vec3 Camera::getPosition()
+	vec3 Camera::getPosition() const
 	{
 		return position;
 	}
 
-	const Viewport& Camera::getViewport()
+	void Camera::setPosition(glm::vec3 position)
+	{
+		this->position = position;
+		calculateDirVecs();
+		calculateViewport();
+	}
+
+	Viewport Camera::getViewport() const
 	{
 		return viewport;
 	}
 
-	void Camera::setUpViewport()
+	void Camera::calculateDirVecs()
+	{
+		forward = normalize(lookAt - position);
+		up = worldUp;
+		right = normalize(cross(forward, up));
+	}
+
+	void Camera::calculateViewport()
 	{
 		// Calculate dimensions of viewport
 		float theta = radians(vfov);

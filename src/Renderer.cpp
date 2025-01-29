@@ -5,12 +5,12 @@ namespace BOSL
     Renderer::Renderer()
         : outputTex(0)
         , initialized(false)
-        , camera(Camera(glm::vec3(4.0f, 2.0f, 10.0f),
-                        glm::vec3(0.0f, 0.0f, 0.0f),
-                        40.0f))
+        , camera(Camera(config::cameraStartPos,
+                        config::cameraLookAt,
+                        config::cameraVFOV))
         , cubemapImgUnit(0)
         , outputTexImgUnit(0)
-    {}
+    { }
 
     void Renderer::init()
     {
@@ -38,6 +38,16 @@ namespace BOSL
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        ptShader.use();
+
+        // Update camera position (for testing)
+        ptShader.use();
+        cameraDegree += 0.3f;
+        glm::mat4 rotationMat = glm::rotate(glm::mat4(1.0f),
+            glm::radians(cameraDegree), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec3 newPos = glm::vec3(rotationMat * glm::vec4(config::cameraStartPos, 1.0f));
+        camera.setPosition(newPos);
+        updateCameraUniforms();
         ptShader.stopUsing();
 
         // normal drawing pass
@@ -58,7 +68,7 @@ namespace BOSL
         glDebugMessageCallback(debug::debugMessageCallback, 0);
         // Set Viewport
         glViewport(0, 0, config::windowWidth, config::windowHeight);
-        // Print Limitations for Compute Shaders
+        // Print limitations for Compute Shaders
         debug::printComputeLimits();
     }
 
@@ -84,13 +94,7 @@ namespace BOSL
 
         // Set values of uniforms
         ptShader.use();
-        Viewport viewport = camera.getViewport();
-        ptShader.setUniformVec3("camera.position", camera.getPosition());
-        ptShader.setUniformVec3("viewport.horiz", viewport.horiz);
-        ptShader.setUniformVec3("viewport.vert", viewport.vert);
-        ptShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
-        ptShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
-        ptShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+        updateCameraUniforms();
         ptShader.setUniformInt("cubemap", 0);
         ptShader.stopUsing();
         quadShader.use();
@@ -122,7 +126,7 @@ namespace BOSL
 
     bool Renderer::checkComputeLimits()
     {
-        GLint workGroupCount[3];
+        GLint workGroupCount[2];
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCount[0]);
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCount[1]);
 
@@ -143,5 +147,16 @@ namespace BOSL
         glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupInv);
         */
         return true;
+    }
+   
+    void Renderer::updateCameraUniforms()
+    {
+        Viewport viewport = camera.getViewport();
+        ptShader.setUniformVec3("camera.position", camera.getPosition());
+        ptShader.setUniformVec3("viewport.horiz", viewport.horiz);
+        ptShader.setUniformVec3("viewport.vert", viewport.vert);
+        ptShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
+        ptShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
+        ptShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
     }
 }
