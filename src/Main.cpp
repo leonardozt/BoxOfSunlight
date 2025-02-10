@@ -14,7 +14,6 @@ int main()
             BOSL::config::windowTitle
         );
         
-        
         BOSL::Renderer renderer;
         renderer.init();
         

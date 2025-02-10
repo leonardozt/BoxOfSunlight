@@ -52,15 +52,32 @@ namespace BOSL {
         return object;
     }
 
+    void Shader::release()
+    {
+        glDeleteShader(object);
+        object = 0;
+    }
+
     Shader::~Shader()
     {
-        // TODO: add copy/move constructor so that
-        // a Shader's destructor doesn't get called
-        // when you add it into a std::vector
-        
-        // Do this for all other classes that
-        // have a destructor as well
+        release();
+    }
+    
+    Shader::Shader(Shader&& other) noexcept
+        : object{ other.object }
+    {
+        other.object = 0;
+    }
 
-        //glDeleteShader(object);
+    Shader& Shader::operator=(Shader&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            release();
+            // object is now 0
+            std::swap(object, other.object);
+        }
+        return *this;
     }
 }

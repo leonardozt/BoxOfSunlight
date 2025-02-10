@@ -9,6 +9,38 @@ namespace BOSL {
         , isBeingUsed(false)
     { }
     
+    Program::Program(Program&& other) noexcept
+        : initialized{other.initialized}
+        , linked{other.linked}
+        , isBeingUsed{other.isBeingUsed}
+        , object{other.object}
+    {
+        other.initialized = false;
+        other.linked = false;
+        other.isBeingUsed = false;
+        other.object = 0;
+    }
+
+    Program& Program::operator=(Program&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            initialized = other.initialized;
+            linked = other.linked;
+            isBeingUsed = other.isBeingUsed;
+
+            other.initialized = false;
+            other.linked = false;
+            other.isBeingUsed = false;
+
+            release();
+            // object is now 0
+            std::swap(object, other.object);
+        }
+        return *this;
+    }
+
     void Program::init()
     {
         object = glCreateProgram();
@@ -44,11 +76,6 @@ namespace BOSL {
             throw BoxOfSunlightError(msg + '\n');
         }
         linked = true;
-    }
-
-    Program::~Program()
-    {
-        glDeleteProgram(object);
     }
 
     void Program::use()
@@ -89,5 +116,16 @@ namespace BOSL {
                 " the program needs to be used first");
         }
         glUniform1i(glGetUniformLocation(object, name.c_str()), value);
+    }
+
+    Program::~Program()
+    {
+        release();
+    }
+
+    void Program::release()
+    {
+        glDeleteProgram(object);
+        object = 0;
     }
 }

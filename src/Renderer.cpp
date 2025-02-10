@@ -34,21 +34,21 @@ namespace BOSL
         glClear(GL_COLOR_BUFFER_BIT);
 
         // dispatch compute shader work groups, one for each pixel
-        ptShader.use();
+        rtShader.use();
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        ptShader.use();
+        rtShader.use();
 
         // Update camera position (for testing)
-        ptShader.use();
+        rtShader.use();
         cameraDegree += 0.3f;
         glm::mat4 rotationMat = glm::rotate(glm::mat4(1.0f),
             glm::radians(cameraDegree), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::vec3 newPos = glm::vec3(rotationMat * glm::vec4(config::cameraStartPos, 1.0f));
         camera.setPosition(newPos);
         updateCameraUniforms();
-        ptShader.stopUsing();
+        rtShader.stopUsing();
 
         // normal drawing pass
         quadShader.use();
@@ -77,26 +77,27 @@ namespace BOSL
         cubemapImgUnit = GL_TEXTURE0;
         outputTexImgUnit = GL_TEXTURE1;
 
-        // Path Tracer Shader Program
-        ptShader.init();
+        // Ray Tracer Shader Program
+        rtShader.init();
         std::vector<Shader> ptShaders;
         Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
-        ptShaders.push_back(computeShader);
-        ptShader.link(ptShaders);
+        ptShaders.push_back(std::move(computeShader));
+        rtShader.link(ptShaders);
 
         // Output Shader Program
         quadShader.init();
         std::vector<Shader> screenShaders;
         Shader screenVS(config::shadersDir + "screen.vert", GL_VERTEX_SHADER);
         Shader screenFS(config::shadersDir + "screen.frag", GL_FRAGMENT_SHADER);
-        screenShaders.push_back(screenVS); screenShaders.push_back(screenFS);
+        screenShaders.push_back(std::move(screenVS));
+        screenShaders.push_back(std::move(screenFS));
         quadShader.link(screenShaders);
 
         // Set values of uniforms
-        ptShader.use();
+        rtShader.use();
         updateCameraUniforms();
-        ptShader.setUniformInt("cubemap", 0);
-        ptShader.stopUsing();
+        rtShader.setUniformInt("cubemap", 0);
+        rtShader.stopUsing();
         quadShader.use();
         quadShader.setUniformInt("quadTexture", 1);
         quadShader.stopUsing();
@@ -152,11 +153,11 @@ namespace BOSL
     void Renderer::updateCameraUniforms()
     {
         Viewport viewport = camera.getViewport();
-        ptShader.setUniformVec3("camera.position", camera.getPosition());
-        ptShader.setUniformVec3("viewport.horiz", viewport.horiz);
-        ptShader.setUniformVec3("viewport.vert", viewport.vert);
-        ptShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
-        ptShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
-        ptShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+        rtShader.setUniformVec3("camera.position", camera.getPosition());
+        rtShader.setUniformVec3("viewport.horiz", viewport.horiz);
+        rtShader.setUniformVec3("viewport.vert", viewport.vert);
+        rtShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
+        rtShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
+        rtShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
     }
 }

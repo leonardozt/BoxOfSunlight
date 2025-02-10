@@ -5,7 +5,32 @@ namespace BOSL
     ScreenQuad::ScreenQuad() :VAO(0), VBO(0), initialized(false)
     {}
 
-	void ScreenQuad::init()
+    ScreenQuad::ScreenQuad(ScreenQuad&& other) noexcept
+        : initialized{other.initialized}
+        , VAO{other.VAO}
+        , VBO{other.VBO}
+    {
+        other.initialized = false;
+        other.VAO = 0;
+        other.VBO = 0;
+    }
+
+    ScreenQuad& ScreenQuad::operator=(ScreenQuad&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            initialized = other.initialized;
+            other.initialized = false;
+
+            release();
+            std::swap(VAO, other.VAO);
+            std::swap(VBO, other.VBO);
+        }
+        return *this;
+    }
+
+    void ScreenQuad::init()
 	{
         float vertices[] = {
         // positions   // texCoords
@@ -44,9 +69,16 @@ namespace BOSL
         shaderProgram.stopUsing();
     }
 
-    ScreenQuad::~ScreenQuad()
+    void ScreenQuad::release()
     {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
+        VAO = 0;
+        VBO = 0;
+    }
+
+    ScreenQuad::~ScreenQuad()
+    {
+        release();
     }
 }

@@ -19,7 +19,7 @@ namespace BOSL
 	public:
 		Renderer();
 		void init();
-		// Renders a single frame using Path Tracing
+		// Renders a single frame using Ray Tracing
 		void render();
 	private:
 		bool initialized;
@@ -27,8 +27,8 @@ namespace BOSL
 		// contains the output image
 		GLuint outputTex;
 		GLuint outputTexImgUnit;
-		// Shader program used for path tracing
-		Program ptShader;
+		// Shader program used for ray tracing
+		Program rtShader;
 		// Shader program used to draw screen quad
 		Program quadShader;
 

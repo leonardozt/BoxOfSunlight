@@ -12,6 +12,15 @@ namespace BOSL {
 		Program();
 		~Program();
 
+		// Delete the copy constructor/assignment
+		Program(const Program&) = delete;
+		Program& operator=(const Program&) = delete;
+
+		// move constructor
+		Program(Program&& other) noexcept;
+		// move assignment
+		Program& operator=(Program&& other) noexcept;
+
 		void init();
 		void link(const std::vector<Shader>& shaders);
 		void use();
@@ -24,5 +33,7 @@ namespace BOSL {
 		bool linked;
 		bool isBeingUsed;
 		GLuint object;
+
+		void release();
 	};
 }
