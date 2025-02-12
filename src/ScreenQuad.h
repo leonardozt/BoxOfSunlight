@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Config.h"
-#include "Program.h"
 
 namespace BOSL
 {
@@ -22,13 +21,12 @@ namespace BOSL
 		// move assignment
 		ScreenQuad& operator=(ScreenQuad&& other) noexcept;
 
-		void init();
-		void draw(Program& shaderProgram) const;
+		void draw() const;
 	private:
-		bool initialized;
-
 		GLuint VAO;
 		GLuint VBO;
+
+		void init();
 
 		void release();
 	};

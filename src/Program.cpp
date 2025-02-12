@@ -3,19 +3,17 @@
 namespace BOSL {
     
     Program::Program()
-        : object(0)
-        , initialized(false)
+        : isBeingUsed(false)
         , linked(false)
-        , isBeingUsed(false)
-    { }
+    {
+        object = glCreateProgram();
+    }
     
     Program::Program(Program&& other) noexcept
-        : initialized{other.initialized}
-        , linked{other.linked}
+        : linked{other.linked}
         , isBeingUsed{other.isBeingUsed}
         , object{other.object}
     {
-        other.initialized = false;
         other.linked = false;
         other.isBeingUsed = false;
         other.object = 0;
@@ -26,33 +24,21 @@ namespace BOSL {
         // check for self-assignment
         if (this != &other)
         {
-            initialized = other.initialized;
-            linked = other.linked;
-            isBeingUsed = other.isBeingUsed;
-
-            other.initialized = false;
-            other.linked = false;
-            other.isBeingUsed = false;
-
             release();
             // object is now 0
             std::swap(object, other.object);
+
+            linked = other.linked;
+            isBeingUsed = other.isBeingUsed;
+
+            other.linked = false;
+            other.isBeingUsed = false;
         }
         return *this;
     }
 
-    void Program::init()
-    {
-        object = glCreateProgram();
-        initialized = true;
-    }
-
     void Program::link(const std::vector<Shader>& shaders)
     {        
-        if (!initialized) {
-            throw BoxOfSunlightError("Program was not initialized");
-        }
-
         for (unsigned i = 0; i < shaders.size(); i++) {
             glAttachShader(object, shaders[i].getObject());
         }
@@ -80,9 +66,8 @@ namespace BOSL {
 
     void Program::use()
     {
-        if (!initialized || !linked) {
-            throw BoxOfSunlightError("Program was not ready for use: "
-                "initialize and link, then use.");
+        if (!linked) {
+            throw BoxOfSunlightError("Shader Program was not linked before use.");
         }
         glUseProgram(object);
         isBeingUsed = true;
@@ -96,8 +81,8 @@ namespace BOSL {
 
     void Program::setUniformVec3(const std::string& name, const glm::vec3& vector) const
     {
-        if (!initialized) {
-            throw BoxOfSunlightError("Program::setUniformVec3() - Program was not initialized");
+        if (!linked) {
+            throw BoxOfSunlightError("Program::setUniformVec3() - Program was not linked.");
         }
         if (!isBeingUsed) {
             throw BoxOfSunlightError("Program::setUniformVec3() - To set value of a uniform,"
@@ -108,8 +93,8 @@ namespace BOSL {
 
     void Program::setUniformInt(const std::string& name, int value) const
     {
-        if (!initialized) {
-            throw BoxOfSunlightError("Program::setUniformInt() - Program was not initialized");
+        if (!linked) {
+            throw BoxOfSunlightError("Program::setUniformVec3() - Program was not linked.");
         }
         if (!isBeingUsed) {
             throw BoxOfSunlightError("Program::setUniformInt() - To set value of a uniform,"

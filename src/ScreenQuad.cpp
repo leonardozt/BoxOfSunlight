@@ -2,15 +2,15 @@
 
 namespace BOSL
 {
-    ScreenQuad::ScreenQuad() :VAO(0), VBO(0), initialized(false)
-    {}
+    ScreenQuad::ScreenQuad()
+    {
+        init();
+    }
 
     ScreenQuad::ScreenQuad(ScreenQuad&& other) noexcept
-        : initialized{other.initialized}
-        , VAO{other.VAO}
+        : VAO{other.VAO}
         , VBO{other.VBO}
     {
-        other.initialized = false;
         other.VAO = 0;
         other.VBO = 0;
     }
@@ -20,9 +20,6 @@ namespace BOSL
         // check for self-assignment
         if (this != &other)
         {
-            initialized = other.initialized;
-            other.initialized = false;
-
             release();
             std::swap(VAO, other.VAO);
             std::swap(VBO, other.VBO);
@@ -53,20 +50,13 @@ namespace BOSL
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glBindVertexArray(0);
-
-        initialized = true;
 	}
 
-    void ScreenQuad::draw(Program& shaderProgram) const
+    void ScreenQuad::draw() const
     {
-        if (!initialized) {
-            throw BoxOfSunlightError("ScreenQuad was not initialized before use.");
-        }
-        shaderProgram.use();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
-        shaderProgram.stopUsing();
     }
 
     void ScreenQuad::release()

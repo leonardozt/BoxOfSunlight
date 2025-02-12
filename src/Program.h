@@ -12,6 +12,8 @@ namespace BOSL {
 		Program();
 		~Program();
 
+		void link(const std::vector<Shader>& shaders);
+
 		// Delete the copy constructor/assignment
 		Program(const Program&) = delete;
 		Program& operator=(const Program&) = delete;
@@ -20,16 +22,13 @@ namespace BOSL {
 		Program(Program&& other) noexcept;
 		// move assignment
 		Program& operator=(Program&& other) noexcept;
-
-		void init();
-		void link(const std::vector<Shader>& shaders);
+		
 		void use();
 		void stopUsing();
 
 		void setUniformVec3(const std::string& name, const glm::vec3& vector) const;
 		void setUniformInt(const std::string& name, int value) const;
 	private:
-		bool initialized;
 		bool linked;
 		bool isBeingUsed;
 		GLuint object;

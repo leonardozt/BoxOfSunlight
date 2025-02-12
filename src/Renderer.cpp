@@ -2,34 +2,19 @@
 
 namespace BOSL
 { 
-    Renderer::Renderer()
-        : outputTex(0)
-        , initialized(false)
-        , camera(Camera(config::cameraStartPos,
-                        config::cameraLookAt,
-                        config::cameraVFOV))
-        , cubemapImgUnit(0)
-        , outputTexImgUnit(0)
-    { }
-
-    void Renderer::init()
+    Renderer::Renderer(Scene scene)
+        : scene(std::move(scene))
     {
-        initGL();
         initShaders();
 
         if (!checkComputeLimits()) {
             throw new BoxOfSunlightError("The Compute Shader can't"
                 " render the output image with its current size.");
         }
-
-        initialized = true;
     }
 
     void Renderer::render()
     {
-        if (!initialized) {
-            throw BoxOfSunlightError("Renderer was not initialized before use.");
-        }
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -38,7 +23,7 @@ namespace BOSL
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        rtShader.use();
+        rtShader.stopUsing();
 
         // Update camera position (for testing)
         rtShader.use();
@@ -46,30 +31,14 @@ namespace BOSL
         glm::mat4 rotationMat = glm::rotate(glm::mat4(1.0f),
             glm::radians(cameraDegree), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::vec3 newPos = glm::vec3(rotationMat * glm::vec4(config::cameraStartPos, 1.0f));
-        camera.setPosition(newPos);
+        scene.camera.setPosition(newPos);
         updateCameraUniforms();
         rtShader.stopUsing();
 
         // normal drawing pass
         quadShader.use();
-        quad.draw(quadShader);
+        quad.draw();
         quadShader.stopUsing();
-    }
-
-    void Renderer::initGL()
-    {
-        // Initialize GLEW
-        if (glewInit() != GLEW_OK) {
-            throw BoxOfSunlightError("GLEW failed to initialize");
-        }
-        // Enable Debug Mode
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(debug::debugMessageCallback, 0);
-        // Set Viewport
-        glViewport(0, 0, config::windowWidth, config::windowHeight);
-        // Print limitations for Compute Shaders
-        debug::printComputeLimits();
     }
 
     void Renderer::initShaders()
@@ -78,14 +47,12 @@ namespace BOSL
         outputTexImgUnit = GL_TEXTURE1;
 
         // Ray Tracer Shader Program
-        rtShader.init();
         std::vector<Shader> ptShaders;
         Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
         ptShaders.push_back(std::move(computeShader));
         rtShader.link(ptShaders);
 
         // Output Shader Program
-        quadShader.init();
         std::vector<Shader> screenShaders;
         Shader screenVS(config::shadersDir + "screen.vert", GL_VERTEX_SHADER);
         Shader screenFS(config::shadersDir + "screen.frag", GL_FRAGMENT_SHADER);
@@ -102,12 +69,11 @@ namespace BOSL
         quadShader.setUniformInt("quadTexture", 1);
         quadShader.stopUsing();
 
-        // Setup cubemap for compute shader
-        cubemap.init(cubemapImgUnit);
+        // Load cubemap for compute shader
+        glActiveTexture(cubemapImgUnit);
+        scene.cubemap.load();
 
-        // Setup screen quad
-        quad.init();
-        // Setup output texture
+        // Set up output texture
         initOutputTexture();
     }
 
@@ -152,8 +118,8 @@ namespace BOSL
    
     void Renderer::updateCameraUniforms()
     {
-        Viewport viewport = camera.getViewport();
-        rtShader.setUniformVec3("camera.position", camera.getPosition());
+        Viewport viewport = scene.camera.getViewport();
+        rtShader.setUniformVec3("camera.position", scene.camera.getPosition());
         rtShader.setUniformVec3("viewport.horiz", viewport.horiz);
         rtShader.setUniformVec3("viewport.vert", viewport.vert);
         rtShader.setUniformVec3("viewport.pixel00", viewport.pixel00);

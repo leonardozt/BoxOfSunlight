@@ -7,14 +7,15 @@ using glm::radians;
 
 #include <iostream>
 
+
 namespace BOSL
 {
-	Camera::Camera(vec3 position, vec3 lookAt, float vfov)
-		: worldUp(vec3(0.0f, 1.0f, 0.0f))
-		, position(position)
-		, lookAt(lookAt)
-		, vfov(vfov)
-		, focalLength(1.0f)
+	Camera::Camera()
+		: worldUp(config::worldUp)
+		, position(config::cameraStartPos)
+		, lookAt(config::cameraLookAt)
+		, vfov(config::cameraVFOV)
+		, focalLength(config::cameraFocalLen)
 	{
 		calculateDirVecs();
 		calculateViewport();

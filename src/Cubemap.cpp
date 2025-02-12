@@ -5,33 +5,48 @@
 
 namespace BOSL
 {
-	Cubemap::Cubemap() : textureObj(0)
-	{}
-
-	void Cubemap::init(GLuint texUnit)
+	Cubemap::Cubemap()
 	{
-		std::vector<std::string> faces =
-		{
-			"right.jpg",
-			"left.jpg",
-			"top.jpg",
-			"bottom.jpg",
-			"front.jpg",
-			"back.jpg"
-		};
+        glGenTextures(1, &textureObj);
+    }
+
+
+
+    Cubemap::Cubemap(Cubemap&& other) noexcept
+        : textureObj{other.textureObj}
+    {
+        other.textureObj = 0;
+    }
+
+    Cubemap& Cubemap::operator=(Cubemap&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            release();
+            // object is now 0
+            std::swap(textureObj, other.textureObj);
+        }
+        return *this;
+    }
+
+    void Cubemap::load() const
+    {
+        std::vector<std::string> faces =
+        {
+            "right.jpg",
+            "left.jpg",
+            "top.jpg",
+            "bottom.jpg",
+            "front.jpg",
+            "back.jpg"
+        };
+
         for (unsigned int i = 0; i < faces.size(); i++)
         {
             faces[i] = config::imagesDir + "cubemap\\" + faces[i];
         }
 
-		textureObj = loadFaces(faces, texUnit);
-	}
-
-    GLuint Cubemap::loadFaces(std::vector<std::string> faces, GLuint texUnit)
-    {
-        glActiveTexture(texUnit);
-        GLuint textureObj;
-        glGenTextures(1, &textureObj);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureObj);
 
         int width, height, nrChannels;
@@ -51,7 +66,16 @@ namespace BOSL
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
 
-        return textureObj;
+    void Cubemap::release()
+    {
+        glDeleteTextures(1, &textureObj);
+        textureObj = 0;
+    }
+
+    Cubemap::~Cubemap()
+    {
+        release();
     }
 }

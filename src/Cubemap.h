@@ -12,11 +12,22 @@ namespace BOSL
 	{
 	public:
 		Cubemap();
-		
-		void init(GLuint texUnit);
+		~Cubemap();
+
+		// Delete the copy constructor/assignment
+		Cubemap(const Cubemap&) = delete;
+		Cubemap& operator=(const Cubemap&) = delete;
+
+		// move constructor
+		Cubemap(Cubemap&& other) noexcept;
+		// move assignment
+		Cubemap& operator=(Cubemap&& other) noexcept;
+
+		void load() const;
+
 	private:
 		GLuint textureObj;
 
-		static GLuint loadFaces(std::vector<std::string> faces, GLuint texUnit);
+		void release();
 	};
 }

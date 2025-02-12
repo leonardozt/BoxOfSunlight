@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Config.h"
+#include "BoxOfSunlightError.h"
+
 #include <string>
 #include <fstream>
-
-#include <GL/glew.h>
-
-#include "BoxOfSunlightError.h"
 
 namespace BOSL {
 	class Shader

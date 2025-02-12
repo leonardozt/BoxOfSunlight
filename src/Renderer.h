@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Debug.h"
 #include "BoxOfSunlightError.h"
-#include "ScreenQuad.h"
+#include "Scene.h"
 #include "Program.h"
-#include "Camera.h"
-#include "Cubemap.h"
+#include "ScreenQuad.h"
 
 #include <vector>
 
@@ -17,12 +15,13 @@ namespace BOSL
 	class Renderer
 	{
 	public:
-		Renderer();
-		void init();
+		Renderer(Scene scene);
+
 		// Renders a single frame using Ray Tracing
 		void render();
+	
 	private:
-		bool initialized;
+		Scene scene;
 
 		// contains the output image
 		GLuint outputTex;
@@ -32,15 +31,10 @@ namespace BOSL
 		// Shader program used to draw screen quad
 		Program quadShader;
 
-		Camera camera;
-
-		Cubemap cubemap;
 		GLuint cubemapImgUnit;
 
 		ScreenQuad quad;
 
-		// Initializes GLEW and sets the needed OpenGL settings
-		static void initGL();
 		// Initializes and links shader programs
 		void initShaders();
 		// Creates and adds the output texture (where the path

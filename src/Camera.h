@@ -20,7 +20,7 @@ namespace BOSL
 	class Camera
 	{
 	public:
-		Camera(glm::vec3 position, glm::vec3 lookAt, float vfov);
+		Camera();
 		
 		glm::vec3 getPosition() const;
 		void setPosition(glm::vec3 position);
