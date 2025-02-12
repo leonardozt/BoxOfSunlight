@@ -43,9 +43,6 @@ namespace BOSL
 
     void Renderer::initShaders()
     {
-        cubemapImgUnit = GL_TEXTURE0;
-        outputTexImgUnit = GL_TEXTURE1;
-
         // Ray Tracer Shader Program
         std::vector<Shader> ptShaders;
         Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
@@ -125,5 +122,43 @@ namespace BOSL
         rtShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
         rtShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
         rtShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+    }
+
+    Renderer::Renderer(Renderer&& other) noexcept
+        : scene(std::move(other.scene))
+        , rtShader(std::move(other.rtShader))
+        , quadShader(std::move(other.quadShader))
+        , quad(std::move(other.quad))
+        , outputTex{other.outputTex}
+    {
+        other.outputTex = 0;
+    }
+
+    Renderer& Renderer::operator=(Renderer&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            release();
+            // outputTex is now 0
+            std::swap(outputTex, other.outputTex);
+
+            scene = std::move(other.scene);
+            rtShader = std::move(other.rtShader);
+            quadShader = std::move(other.quadShader);
+            quad = std::move(other.quad);
+        }
+        return *this;
+    }
+
+    void Renderer::release()
+    {
+        glDeleteTextures(1, &outputTex);
+        outputTex = 0;
+    }
+
+    Renderer::~Renderer()
+    {
+        release();
     }
 }

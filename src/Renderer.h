@@ -16,6 +16,16 @@ namespace BOSL
 	{
 	public:
 		Renderer(Scene scene);
+		~Renderer();
+
+		// Delete the copy constructor/assignment
+		Renderer(const Renderer&) = delete;
+		Renderer& operator=(const Renderer&) = delete;
+
+		// move constructor
+		Renderer(Renderer&& other) noexcept;
+		// move assignment
+		Renderer& operator=(Renderer&& other) noexcept;
 
 		// Renders a single frame using Ray Tracing
 		void render();
@@ -23,17 +33,17 @@ namespace BOSL
 	private:
 		Scene scene;
 
-		// contains the output image
-		GLuint outputTex;
-		GLuint outputTexImgUnit;
 		// Shader program used for ray tracing
 		Program rtShader;
+		
 		// Shader program used to draw screen quad
 		Program quadShader;
-
-		GLuint cubemapImgUnit;
-
 		ScreenQuad quad;
+		// Contains the output image
+		GLuint outputTex;
+		
+		static const GLuint cubemapImgUnit = GL_TEXTURE0;
+		static const GLuint outputTexImgUnit = GL_TEXTURE1;
 
 		// Initializes and links shader programs
 		void initShaders();
@@ -49,5 +59,7 @@ namespace BOSL
 
 		// for testing
 		float cameraDegree = 0.0f;
+
+		void release();
 	};
 }
