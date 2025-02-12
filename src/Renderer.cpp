@@ -51,8 +51,8 @@ namespace BOSL
 
         // Output Shader Program
         std::vector<Shader> screenShaders;
-        Shader screenVS(config::shadersDir + "screen.vert", GL_VERTEX_SHADER);
-        Shader screenFS(config::shadersDir + "screen.frag", GL_FRAGMENT_SHADER);
+        Shader screenVS(config::shadersDir + "output.vert", GL_VERTEX_SHADER);
+        Shader screenFS(config::shadersDir + "output.frag", GL_FRAGMENT_SHADER);
         screenShaders.push_back(std::move(screenVS));
         screenShaders.push_back(std::move(screenFS));
         quadShader.link(screenShaders);

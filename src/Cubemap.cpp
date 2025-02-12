@@ -10,26 +10,6 @@ namespace BOSL
         glGenTextures(1, &textureObj);
     }
 
-
-
-    Cubemap::Cubemap(Cubemap&& other) noexcept
-        : textureObj{other.textureObj}
-    {
-        other.textureObj = 0;
-    }
-
-    Cubemap& Cubemap::operator=(Cubemap&& other) noexcept
-    {
-        // check for self-assignment
-        if (this != &other)
-        {
-            release();
-            // object is now 0
-            std::swap(textureObj, other.textureObj);
-        }
-        return *this;
-    }
-
     void Cubemap::load() const
     {
         std::vector<std::string> faces =
@@ -56,9 +36,9 @@ namespace BOSL
             if (!data)
             {
                 throw BoxOfSunlightError("Cubemap tex failed to load at path: " + faces[i]);
-            }            
+            }
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -66,6 +46,24 @@ namespace BOSL
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    Cubemap::Cubemap(Cubemap&& other) noexcept
+        : textureObj{other.textureObj}
+    {
+        other.textureObj = 0;
+    }
+
+    Cubemap& Cubemap::operator=(Cubemap&& other) noexcept
+    {
+        // check for self-assignment
+        if (this != &other)
+        {
+            release();
+            // object is now 0
+            std::swap(textureObj, other.textureObj);
+        }
+        return *this;
     }
 
     void Cubemap::release()

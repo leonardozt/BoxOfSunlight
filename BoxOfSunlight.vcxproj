@@ -45,8 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\compute.glsl" />
-    <None Include="src\shaders\screen.frag" />
-    <None Include="src\shaders\screen.vert" />
+    <None Include="src\shaders\output.frag" />
+    <None Include="src\shaders\output.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
