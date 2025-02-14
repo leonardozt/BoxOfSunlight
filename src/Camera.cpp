@@ -11,14 +11,26 @@ using glm::radians;
 namespace BOSL
 {
 	Camera::Camera()
-		: worldUp(config::worldUp)
-		, position(config::cameraStartPos)
-		, lookAt(config::cameraLookAt)
-		, vfov(config::cameraVFOV)
-		, focalLength(config::cameraFocalLen)
+		: Camera(
+			glm::vec3(0.0f,1.0f,0.0f),
+			glm::vec3(0.0f,0.0f,1.0f),
+			glm::vec3(0.0f,0.0f,0.0f),
+			30.0f,
+			1.0f
+			)
+	{
+		// (left intentionally empty)
+	}
+
+	Camera::Camera(glm::vec3 worldUp, glm::vec3 position, glm::vec3 lookAt,
+		float vfov, float focalLength)
+		: worldUp(worldUp)
+		, position(position)
+		, lookAt(lookAt)
+		, vfov(vfov)
+		, focalLength(focalLength)
 	{
 		calculateDirVecs();
-		calculateViewport();
 	}
 
 	vec3 Camera::getPosition() const
@@ -33,11 +45,6 @@ namespace BOSL
 		calculateViewport();
 	}
 
-	Viewport Camera::getViewport() const
-	{
-		return viewport;
-	}
-
 	void Camera::calculateDirVecs()
 	{
 		forward = normalize(lookAt - position);
@@ -45,7 +52,7 @@ namespace BOSL
 		right = normalize(cross(forward, up));
 	}
 
-	void Camera::calculateViewport()
+	Viewport Camera::calculateViewport()
 	{
 		// Calculate dimensions of viewport
 		float theta = radians(vfov);
@@ -65,7 +72,7 @@ namespace BOSL
 			- vert * 0.5f;
 		// position of pixel (0,0)
 		vec3 pixel00 = viewportUpperLeft + 0.5f * (deltaHoriz + deltaVert);
-		viewport =
+		Viewport vp =
 		{
 			horiz,
 			vert,
@@ -73,5 +80,6 @@ namespace BOSL
 			deltaHoriz,
 			deltaVert
 		};
+		return vp;
 	}
 }

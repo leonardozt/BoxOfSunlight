@@ -2,6 +2,10 @@
 
 namespace BOSL
 { 
+    // Static constants
+    const GLuint Renderer::cubemapImgUnit = GL_TEXTURE0;
+    const GLuint Renderer::outputTexImgUnit = GL_TEXTURE1;
+
     Renderer::Renderer(Scene scene)
         : scene(std::move(scene))
     {
@@ -18,6 +22,13 @@ namespace BOSL
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // update light position (for testing)
+        float zCoord = glm::sin(lightCounter);
+        lightCounter += 0.03f;
+        rtShader.use();
+        rtShader.setUniformVec3("lightPos", glm::vec3(-1.0, 5.0, zCoord * 3));
+        rtShader.stopUsing();
+
         // dispatch compute shader work groups, one for each pixel
         rtShader.use();
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
@@ -25,20 +36,36 @@ namespace BOSL
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         rtShader.stopUsing();
 
-        // Update camera position (for testing)
-        rtShader.use();
-        cameraDegree += 0.3f;
-        glm::mat4 rotationMat = glm::rotate(glm::mat4(1.0f),
-            glm::radians(cameraDegree), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::vec3 newPos = glm::vec3(rotationMat * glm::vec4(config::cameraStartPos, 1.0f));
-        scene.camera.setPosition(newPos);
-        updateCameraUniforms();
-        rtShader.stopUsing();
-
         // normal drawing pass
         quadShader.use();
         quad.draw();
         quadShader.stopUsing();
+    }
+
+    // for testing
+    void init2DTexture(std::string fileName, GLenum format, GLuint imgUnit)
+    {
+        int width, height, nrComponents;
+        std::string path = config::imagesDir + fileName;
+        unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+        if (!data)
+        {
+            throw BoxOfSunlightError("Texture load failure at path " + path);
+        }
+
+        glActiveTexture(imgUnit);
+        GLuint tex;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     void Renderer::initShaders()
@@ -61,6 +88,45 @@ namespace BOSL
         rtShader.use();
         updateCameraUniforms();
         rtShader.setUniformInt("cubemap", 0);
+
+        // for testing ------------------
+        GLuint normalMapImgUnit = GL_TEXTURE2;
+        rtShader.setUniformInt("wallNormalMap", 2);
+
+        //stbi_set_flip_vertically_on_load(true);
+
+        init2DTexture("wallNormalMap.jpg", GL_RGB, normalMapImgUnit);
+
+        GLuint albedoMapImgUnit = GL_TEXTURE3;
+        rtShader.setUniformInt("wallAlbedoMap", 3);
+
+        init2DTexture("wallAlbedoMap.jpg", GL_SRGB, albedoMapImgUnit);
+        
+        rtShader.setUniformVec3("wall.t1.v0.pos", scene.t1.v0.pos);
+        rtShader.setUniformVec2("wall.t1.v0.uv", scene.t1.v0.uv);
+        
+        rtShader.setUniformVec3("wall.t1.v1.pos", scene.t1.v1.pos);
+        rtShader.setUniformVec2("wall.t1.v1.uv", scene.t1.v1.uv);
+        
+        rtShader.setUniformVec3("wall.t1.v2.pos", scene.t1.v2.pos);
+        rtShader.setUniformVec2("wall.t1.v2.uv", scene.t1.v2.uv);
+
+        rtShader.setUniformMat3("wall.t1.TBN", scene.t1.calculateTBN());
+
+        rtShader.setUniformVec3("wall.t2.v0.pos", scene.t2.v0.pos);
+        rtShader.setUniformVec2("wall.t2.v0.uv", scene.t2.v0.uv);
+        
+        rtShader.setUniformVec3("wall.t2.v1.pos", scene.t2.v1.pos);
+        rtShader.setUniformVec2("wall.t2.v1.uv", scene.t2.v1.uv);
+
+        rtShader.setUniformVec3("wall.t2.v2.pos", scene.t2.v2.pos);
+        rtShader.setUniformVec2("wall.t2.v2.uv", scene.t2.v2.uv);
+
+        rtShader.setUniformMat3("wall.t2.TBN", scene.t2.calculateTBN());
+
+        rtShader.setUniformVec3("lightPos", glm::vec3(-1.0, 2.0, 5.0));
+        // ------------------------------
+
         rtShader.stopUsing();
         quadShader.use();
         quadShader.setUniformInt("quadTexture", 1);
@@ -115,7 +181,7 @@ namespace BOSL
    
     void Renderer::updateCameraUniforms()
     {
-        Viewport viewport = scene.camera.getViewport();
+        Viewport viewport = scene.camera.calculateViewport();
         rtShader.setUniformVec3("camera.position", scene.camera.getPosition());
         rtShader.setUniformVec3("viewport.horiz", viewport.horiz);
         rtShader.setUniformVec3("viewport.vert", viewport.vert);

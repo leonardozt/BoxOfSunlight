@@ -21,13 +21,16 @@ namespace BOSL
 	{
 	public:
 		Camera();
+
+		Camera(glm::vec3 worldUp, glm::vec3 position, glm::vec3 lookAt,
+			float vfov, float focalLength);
 		
 		glm::vec3 getPosition() const;
 		void setPosition(glm::vec3 position);
 		
 		// Returns Viewport (rectangle in 3D space)
 		// associated with camera
-		Viewport getViewport() const;
+		Viewport calculateViewport();
 
 	private:
 		glm::vec3 worldUp;
@@ -46,8 +49,5 @@ namespace BOSL
 		// Calculates direction vectors,
 		// using position, lookAt and worldUp
 		void calculateDirVecs();
-
-		Viewport viewport;
-		void calculateViewport();
 	};
 }

@@ -27,7 +27,11 @@ namespace BOSL {
 		void stopUsing();
 
 		void setUniformVec3(const std::string& name, const glm::vec3& vector) const;
+		void setUniformVec2(const std::string& name, const glm::vec2& vector) const;
 		void setUniformInt(const std::string& name, int value) const;
+
+		// for testing (TBN matrix)
+		void setUniformMat3(const std::string& name, const glm::mat3& matrix) const;
 	private:
 		bool linked;
 		bool isBeingUsed;

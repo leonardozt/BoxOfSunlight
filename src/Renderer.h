@@ -8,7 +8,7 @@
 #include <vector>
 
 // for testing
-#include <glm/gtc/matrix_transform.hpp>
+#include <stb/stb_image.h>
 
 namespace BOSL
 {
@@ -42,8 +42,8 @@ namespace BOSL
 		// Contains the output image
 		GLuint outputTex;
 		
-		static const GLuint cubemapImgUnit = GL_TEXTURE0;
-		static const GLuint outputTexImgUnit = GL_TEXTURE1;
+		static const GLuint cubemapImgUnit;
+		static const GLuint outputTexImgUnit;
 
 		// Initializes and links shader programs
 		void initShaders();
@@ -57,9 +57,9 @@ namespace BOSL
 		// The corresponding shader program needs to be active.
 		void updateCameraUniforms();
 
-		// for testing
-		float cameraDegree = 0.0f;
-
 		void release();
+
+		// for testing
+		float lightCounter = 0.0;
 	};
 }

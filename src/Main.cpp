@@ -4,6 +4,9 @@
 #include "Renderer.h"
 #include "Debug.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 // Callback function for GLFW errors
 void glfwErrorCallback(int error, const char* description)
 {

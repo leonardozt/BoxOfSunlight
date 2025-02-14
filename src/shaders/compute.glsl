@@ -5,6 +5,12 @@ layout(rgba32f, binding = 0) uniform image2D outputImg;
 
 uniform samplerCube cubemap;
 
+uniform sampler2D wallNormalMap;
+uniform sampler2D wallAlbedoMap;
+
+// for testing
+uniform vec3 lightPos;
+
 struct Ray {
     vec3 origin;
     // direction
@@ -22,17 +28,18 @@ struct HitInfo {
     bool hit;
     vec3 p;
     vec3 normal;
+    // texture coordinates
+    vec2 uv;
     // distance along ray
     float t;
-    bool frontFace;
     //Material mat;
 };
 
 struct Vertex {
     // position
     vec3 pos;
-    vec3 normal;
-    //vec2 texCoord;
+    // UV coordinates
+    vec2 uv;
 };
 
 struct Triangle {
@@ -40,6 +47,9 @@ struct Triangle {
     Vertex v1;
     Vertex v2;
     //Material mat;
+
+    // for testing
+    mat3 TBN;
 };
 HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT);
 
@@ -68,138 +78,8 @@ struct Quad {
     Triangle t1;
     Triangle t2;
 };
-// for testing
-struct Cube {
-    Quad front;
-    Quad right;
-    Quad back;
-    Quad left;
-    Quad top;
-    Quad bottom;
-};
 
-Cube testCube()
-{
-    vec3 p0 = vec3(-1.0, -1.0,  1.0);
-    vec3 p1 = vec3( 1.0, -1.0,  1.0);
-    vec3 p2 = vec3( 1.0,  1.0,  1.0);
-    vec3 p3 = vec3(-1.0,  1.0,  1.0);
-    vec3 p4 = vec3(-1.0, -1.0, -1.0);
-    vec3 p5 = vec3( 1.0, -1.0, -1.0);
-    vec3 p6 = vec3( 1.0,  1.0, -1.0);    
-    vec3 p7 = vec3(-1.0,  1.0, -1.0);
-    
-    Quad faces[6];
-    Triangle t1;
-    Triangle t2;
-
-    // front face
-    vec3 normal = vec3(0.0, 0.0, 1.0);
-    t1.v0.pos = p0;
-    t1.v0.normal = normal;
-    t1.v1.pos = p1;
-    t1.v1.normal = normal;
-    t1.v2.pos = p3;
-    t1.v2.normal = normal;
-    t2.v0.pos = p1;
-    t2.v0.normal = normal;
-    t2.v1.pos = p2;
-    t2.v1.normal = normal;
-    t2.v2.pos = p3;
-    t2.v2.normal = normal;
-    faces[0].t1 = t1;
-    faces[0].t2 = t2;
-    // right
-    normal = vec3(1.0, 0.0, 0.0);
-    t1.v0.pos = p1;
-    t1.v0.normal = normal;
-    t1.v1.pos = p5;
-    t1.v1.normal = normal;
-    t1.v2.pos = p2;
-    t1.v2.normal = normal;
-    t2.v0.pos = p5;
-    t2.v0.normal = normal;
-    t2.v1.pos = p6;
-    t2.v1.normal = normal;
-    t2.v2.pos = p2;
-    t2.v2.normal = normal;
-    faces[1].t1 = t1;
-    faces[1].t2 = t2;
-    // back
-    normal = vec3(0.0, 0.0, -1.0);
-    t1.v0.pos = p4;
-    t1.v0.normal = normal;
-    t1.v1.pos = p5;
-    t1.v1.normal = normal;
-    t1.v2.pos = p7;
-    t1.v2.normal = normal;
-    t2.v0.pos = p5;
-    t2.v0.normal = normal;
-    t2.v1.pos = p6;
-    t2.v1.normal = normal;
-    t2.v2.pos = p7;
-    t2.v2.normal = normal;
-    faces[2].t1 = t1;
-    faces[2].t2 = t2;
-    // left
-    normal = vec3(-1.0, 0.0, 0.0);
-    t1.v0.pos = p4;
-    t1.v0.normal = normal;
-    t1.v1.pos = p0;
-    t1.v1.normal = normal;
-    t1.v2.pos = p7;
-    t1.v2.normal = normal;
-    t2.v0.pos = p0;
-    t2.v0.normal = normal;
-    t2.v1.pos = p3;
-    t2.v1.normal = normal;
-    t2.v2.pos = p7;
-    t2.v2.normal = normal;
-    faces[3].t1 = t1;
-    faces[3].t2 = t2;
-    // top
-    normal = vec3(0.0, 1.0, 0.0);
-    t1.v0.pos = p3;
-    t1.v0.normal = normal;
-    t1.v1.pos = p2;
-    t1.v1.normal = normal;
-    t1.v2.pos = p7;
-    t1.v2.normal = normal;
-    t2.v0.pos = p2;
-    t2.v0.normal = normal;
-    t2.v1.pos = p6;
-    t2.v1.normal = normal;
-    t2.v2.pos = p7;
-    t2.v2.normal = normal;
-    faces[4].t1 = t1;
-    faces[4].t2 = t2;
-    // bottom
-    normal = vec3(0.0, -1.0, 0.0);
-    t1.v0.pos = p4;
-    t1.v0.normal = normal;
-    t1.v1.pos = p5;
-    t1.v1.normal = normal;
-    t1.v2.pos = p0;
-    t1.v2.normal = normal;
-    t2.v0.pos = p5;
-    t2.v0.normal = normal;
-    t2.v1.pos = p1;
-    t2.v1.normal = normal;
-    t2.v2.pos = p0;
-    t2.v2.normal = normal;
-    faces[5].t1 = t1;
-    faces[5].t2 = t2;
-    
-    Cube cube;
-    cube.front = faces[0];
-    cube.right = faces[1];
-    cube.back = faces[2];
-    cube.left = faces[3];
-    cube.top = faces[4];
-    cube.bottom = faces[5];
-
-    return cube;
-}
+uniform Quad wall;
 
 void main() {
     // calculate dimensions of image
@@ -210,24 +90,12 @@ void main() {
     // of the pixel that we're rendering
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
 
+    // for testing -----------------------------------------
+    Triangle triangles[2];
+    triangles[0] = wall.t1;
+    triangles[1] = wall.t2;    
     // -----------------------------------------------------
-    // unpack cube (for testing)
-    Cube cube = testCube();
-    Triangle triangles[12];
-    triangles[0] = cube.front.t1;
-    triangles[1] = cube.front.t2;
-    triangles[2] = cube.right.t1;
-    triangles[3] = cube.right.t2;
-    triangles[4] = cube.back.t1;
-    triangles[5] = cube.back.t2;
-    triangles[6] = cube.left.t1;
-    triangles[7] = cube.left.t2;
-    triangles[8] = cube.top.t1;
-    triangles[9] = cube.top.t2;
-    triangles[10] = cube.bottom.t1;
-    triangles[11] = cube.bottom.t2;
-    // -----------------------------------------------------
-    
+
     Interval rayT = {0.1, 999};
     Ray ray = rayThroughPixel(pixelCoords);
     
@@ -246,11 +114,15 @@ void main() {
     }
 
     if (hitAnything) {
-        // mirror (for testing)
-        vec3 reflectedRay = reflect(ray.dir, rec.normal);
-        pixel = texture(cubemap, reflectedRay);
+        // lambertian reflection (for testing)
+        vec3 color = texture(wallAlbedoMap, rec.uv).rgb;
+        vec3 toLight = lightPos - rec.p;
+        float diffuse = max(0.0, dot(rec.normal, toLight));
+        vec3 intensity = color * diffuse;
+
+        pixel = vec4(intensity, 1.0);
     } else {
-        pixel = texture(cubemap, ray.dir);
+        //pixel = texture(cubemap, ray.dir);
     }
 
     // store output pixel color
@@ -294,8 +166,10 @@ HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
     vec3 pvec = cross(r.dir, e2);
     float det = dot(pvec, e1);
 
-    if (abs(det) < 1e-8) {
-        rec.hit = false; // triangle and ray are parallel
+    // Ignore triangle if it's back-facing (negative determinant)
+    // or if it's parallel to the ray (determinant close to 0)
+    if (det < 1e-8) {
+        rec.hit = false;
         return rec;
     }
 
@@ -327,17 +201,14 @@ HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
     rec.p = intersection;
     //rec.material = triangle.mat;
 
-    // Interpolate normal values from vertices
-    vec3 normal = v0.normal * (1 - u - v) + v1.normal * u + v2.normal * v;
-
-    bool frontFace = (dot(r.dir, normal) < 0);
-    rec.frontFace = frontFace;
-    rec.normal = frontFace ? normal : -normal;
-
-    // Interpolate texture coordinates (u and v)
+    // Interpolate texture coordinates (or "UV coordinates")
     // (different meaning from barycentric coordinates)
-    //rec.u = v0.texCoords.x*(1-u-v) + v1.texCoords.x*u + v2.texCoords.x*v;
-    //rec.v = v0.texCoords.y*(1-u-v) + v1.texCoords.y*u + v2.texCoords.y*v;
+    rec.uv = (1-u-v) * v0.uv + u * v1.uv + v * v2.uv;
+
+    vec3 normal = texture(wallNormalMap, rec.uv).rgb;
+    normal = normal * 2.0 - 1.0;   
+    normal = normalize(triangle.TBN * normal);
+    rec.normal = normal;  
 
     rec.hit = true;
     return rec;
