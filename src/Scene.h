@@ -4,9 +4,11 @@
 #include "Cubemap.h"
 #include "Triangle.h"
 #include "Texture.h"
+#include "Sphere.h"
 
 namespace BOSL
 {
+	// for testing
 	class PointLight
 	{
 	public:
@@ -48,6 +50,9 @@ namespace BOSL
 
 		// Point light (for testing)
 		PointLight pLight;
+
+		// Sphere object (for testing)
+		Sphere sphere;
 	private:
 		// Data used for initialization of camera
 		struct camAtStart

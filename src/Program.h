@@ -28,6 +28,7 @@ namespace BOSL {
 
 		void setUniformVec3(const std::string& name, const glm::vec3& vector) const;
 		void setUniformVec2(const std::string& name, const glm::vec2& vector) const;
+		void setUniformFloat(const std::string& name, float value) const;
 		void setUniformInt(const std::string& name, int value) const;
 
 		// for testing (TBN matrix)
@@ -36,6 +37,8 @@ namespace BOSL {
 		bool linked;
 		bool isBeingUsed;
 		GLuint object;
+
+		void checkLinkedUsed(const std::string& callingFunction) const;
 
 		void release();
 	};

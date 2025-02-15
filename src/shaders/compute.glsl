@@ -1,6 +1,8 @@
 #version 430
 layout(local_size_x = 1, local_size_y = 1) in;
 
+#define PI 3.14159265358979323
+
 layout(rgba32f, binding = 0) uniform image2D outputImg;
 
 uniform samplerCube cubemap;
@@ -85,6 +87,14 @@ struct PointLight {
 };
 uniform PointLight pLight;
 
+struct Sphere {
+    vec3 center;
+    float radius;
+};
+uniform Sphere sphere;
+
+HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT);
+
 void main() {
     // calculate dimensions of image
     ivec2 imgDims = imageSize(outputImg);
@@ -117,6 +127,12 @@ void main() {
         }
     }
 
+    tempRec = sphereHit(ray, sphere, rayT);
+    if (tempRec.hit) {
+        hitAnything = true;
+        rec = tempRec;
+    }
+    
     vec3 color;
     if (hitAnything) {
         // Blinn-Phong (for testing)
@@ -229,6 +245,58 @@ HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
     normal = normal * 2.0 - 1.0;   
     normal = normalize(triangle.TBN * normal);
     rec.normal = normal;  
+
+    rec.hit = true;
+    return rec;
+}
+
+HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
+    HitInfo rec;
+   
+    vec3 oc = sphere.center - ray.origin;
+    vec3 d = ray.dir;
+    float radius = sphere.radius;
+
+    float a = dot(d, d);
+    float h = dot(d, oc);
+    float c = dot(oc, oc) - radius * radius;
+    float discriminant = h * h - a * c;
+
+    if (discriminant < 0) {
+        rec.hit = false;
+        return rec;
+    }
+
+    // Find the nearest root that lies in the acceptable range
+    float sqrtd = sqrt(discriminant);
+    float root = (h - sqrtd) / a;
+    if (!((rayT.min <= root) && (root <= rayT.max))) {
+        root = (h + sqrtd) / a;
+        if (!((rayT.min <= root) && (root <= rayT.max))) {
+            rec.hit = false;
+            return rec;
+        }
+    }
+
+    rec.t = root;
+    rec.p = rayAt(ray, rec.t);
+    
+    // Calculate sphere UV from spherical coordinates
+    vec3 normal = rec.p - sphere.center;
+    float theta = acos(-normal.y);
+    float phi = atan(-normal.z, normal.x) + PI; // atan is equivalent to atan2 in C (?)
+    float u = phi / (2 * PI);
+    float v = theta / PI;
+    rec.uv = vec2(u, v);
+
+    normal = texture(wallNormalMap, rec.uv).rgb;
+    normal = normal * 2.0 - 1.0;   
+    normal = normalize(normal);
+    vec3 tangent = vec3(sin(phi)*sin(theta), 0, -cos(phi)*sin(theta)); // check math
+    tangent = normalize(tangent);
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
+    rec.normal = normalize(TBN * normal);  
 
     rec.hit = true;
     return rec;

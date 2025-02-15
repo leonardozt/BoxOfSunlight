@@ -81,49 +81,31 @@ namespace BOSL {
 
     void Program::setUniformVec3(const std::string& name, const glm::vec3& vector) const
     {
-        if (!linked) {
-            throw BoxOfSunlightError("Program::setUniformVec3() - Program was not linked.");
-        }
-        if (!isBeingUsed) {
-            throw BoxOfSunlightError("Program::setUniformVec3() - To set value of a uniform,"
-                " the program needs to be used first");
-        }
+        checkLinkedUsed("setUniformVec3");
         glUniform3fv(glGetUniformLocation(object, name.c_str()), 1, &vector[0]);
     }
 
     void Program::setUniformVec2(const std::string& name, const glm::vec2& vector) const
     {
-        if (!linked) {
-            throw BoxOfSunlightError("Program::setUniformVec2() - Program was not linked.");
-        }
-        if (!isBeingUsed) {
-            throw BoxOfSunlightError("Program::setUniformVec2() - To set value of a uniform,"
-                " the program needs to be used first");
-        }
+        checkLinkedUsed("setUniformVec2");
         glUniform2fv(glGetUniformLocation(object, name.c_str()), 1, &vector[0]);
+    }
+
+    void Program::setUniformFloat(const std::string& name, float value) const
+    {
+        checkLinkedUsed("setUniformFloat");
+        glUniform1f(glGetUniformLocation(object, name.c_str()), value);
     }
 
     void Program::setUniformInt(const std::string& name, int value) const
     {
-        if (!linked) {
-            throw BoxOfSunlightError("Program::setUniformInt() - Program was not linked.");
-        }
-        if (!isBeingUsed) {
-            throw BoxOfSunlightError("Program::setUniformInt() - To set value of a uniform,"
-                " the program needs to be used first");
-        }
+        checkLinkedUsed("setUniformInt");
         glUniform1i(glGetUniformLocation(object, name.c_str()), value);
     }
 
     void Program::setUniformMat3(const std::string& name, const glm::mat3& matrix) const
     {
-        if (!linked) {
-            throw BoxOfSunlightError("Program::setUniformMat3() - Program was not linked.");
-        }
-        if (!isBeingUsed) {
-            throw BoxOfSunlightError("Program::setUniformMat3() - To set value of a uniform,"
-                " the program needs to be used first");
-        }
+        checkLinkedUsed("setUniformMat3");
         glUniformMatrix3fv(glGetUniformLocation(object, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
     }
 
@@ -136,5 +118,16 @@ namespace BOSL {
     {
         glDeleteProgram(object);
         object = 0;
+    }
+
+    void Program::checkLinkedUsed(const std::string& callingFunction) const
+    {
+        std::string fullFuncName = "Program::" + callingFunction + "()";
+        if (!linked) {
+            throw BoxOfSunlightError(fullFuncName + " - Program was not linked before call.");
+        }
+        if (!isBeingUsed) {
+            throw BoxOfSunlightError(fullFuncName + " - Program was not used before call.");
+        }
     }
 }

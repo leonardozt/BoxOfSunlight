@@ -88,6 +88,9 @@ namespace BOSL
 
         rtShader.setUniformVec3("pLight.position", scene.pLight.getPosition());
         rtShader.setUniformVec3("pLight.emission", scene.pLight.getEmission());
+
+        rtShader.setUniformVec3("sphere.center", scene.sphere.getCenter());
+        rtShader.setUniformFloat("sphere.radius", scene.sphere.getRadius());
         // ------------------------------
 
         rtShader.stopUsing();

@@ -5,11 +5,6 @@
 #include "Program.h"
 #include "ScreenQuad.h"
 
-#include <vector>
-
-// for testing
-#include "Texture.h"
-
 namespace BOSL
 {
 	class Renderer
@@ -65,8 +60,5 @@ namespace BOSL
 		void updateCameraUniforms();
 
 		void release();
-
-		// for testing
-		float lightCounter = 0.0;
 	};
 }
