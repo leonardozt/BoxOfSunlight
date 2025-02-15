@@ -8,7 +8,7 @@
 #include <vector>
 
 // for testing
-#include <stb/stb_image.h>
+#include "Texture.h"
 
 namespace BOSL
 {
@@ -31,25 +31,32 @@ namespace BOSL
 		void render();
 	
 	private:
+		// Scene to be rendered
 		Scene scene;
 
 		// Shader program used for ray tracing
 		Program rtShader;
-		
 		// Shader program used to draw screen quad
 		Program quadShader;
-		ScreenQuad quad;
-		// Contains the output image
-		GLuint outputTex;
-		
-		static const GLuint cubemapImgUnit;
-		static const GLuint outputTexImgUnit;
 
-		// Initializes and links shader programs
+		// Quad that will be rendered on screen in final drawing pass
+		ScreenQuad quad;
+		// Texture that will be mapped on quad
+		GLuint outputTex;
+
+		// Texture Image Units
+		struct TexImgUnits {
+			static const int cubemap = 0;
+			static const int outputTex = 1;
+		};
+
+		// Prepares shader programs for rendering
 		void initShaders();
+
 		// Creates and adds the output texture (where the path
 		// tracers saves the output image) to the OpenGL context
 		void initOutputTexture();
+
 		// Checks system's limitations for Compute Shader Workgroups
 		bool checkComputeLimits();
 

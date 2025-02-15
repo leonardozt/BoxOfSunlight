@@ -8,9 +8,6 @@ uniform samplerCube cubemap;
 uniform sampler2D wallNormalMap;
 uniform sampler2D wallAlbedoMap;
 
-// for testing
-uniform vec3 lightPos;
-
 struct Ray {
     vec3 origin;
     // direction
@@ -81,11 +78,18 @@ struct Quad {
 
 uniform Quad wall;
 
+// for testing
+struct PointLight {
+    vec3 position;
+    vec3 emission;
+};
+uniform PointLight pLight;
+
 void main() {
     // calculate dimensions of image
     ivec2 imgDims = imageSize(outputImg);
     // set base pixel color
-    vec4 pixel = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 pixelColor = vec4(0.0, 0.0, 0.0, 1.0);
     // The Global Work Group ID contains the coordinates
     // of the pixel that we're rendering
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
@@ -113,20 +117,36 @@ void main() {
         }
     }
 
+    vec3 color;
     if (hitAnything) {
-        // lambertian reflection (for testing)
-        vec3 color = texture(wallAlbedoMap, rec.uv).rgb;
-        vec3 toLight = lightPos - rec.p;
-        float diffuse = max(0.0, dot(rec.normal, toLight));
-        vec3 intensity = color * diffuse;
+        // Blinn-Phong (for testing)
 
-        pixel = vec4(intensity, 1.0);
+        vec3 albedo = texture(wallAlbedoMap, rec.uv).rgb;
+
+        // ambient term
+        vec3 ambientLight = texture(cubemap, rec.normal).rgb;
+        vec3 ambient = ambientLight * albedo;
+
+        vec3 toLight = normalize(pLight.position - rec.p);
+        
+        // diffuse term
+        float normLightDot = max(0.0, dot(rec.normal, toLight));
+        vec3 diffuse = pLight.emission * albedo * normLightDot;
+
+        // specular term
+        vec3 toV = normalize(camera.position - rec.p);
+        vec3 h = normalize(toV + toLight);
+        float specFactor = pow(max(0.0, dot(h, rec.normal)), 64.0);
+        vec3 specular = vec3(0.6, 0.6, 0.6) * specFactor;
+
+        color = ambient + diffuse + specular;
     } else {
-        //pixel = texture(cubemap, ray.dir);
+        color = texture(cubemap, ray.dir).rgb;
     }
+    pixelColor = vec4(color, 1.0);
 
     // store output pixel color
-    imageStore(outputImg, pixelCoords, pixel);
+    imageStore(outputImg, pixelCoords, pixelColor);
 }
 
 // Returns point along the ray at distance t from its origin

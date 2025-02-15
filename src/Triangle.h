@@ -13,7 +13,6 @@ namespace BOSL
 		glm::vec3 pos;
 		glm::vec2 uv;
 		
-		// Constructor
 		Vertex(glm::vec3 pos, glm::vec2 uv)
 			: pos(pos)
 			, uv(uv)
@@ -21,7 +20,6 @@ namespace BOSL
 			// (left intentionally empty)
 		}
 
-		// Default constructor
 		Vertex()
 			: pos(glm::vec3(0.0f, 0.0f, 0.0f))
 			, uv(glm::vec2(0.0f, 0.0f))

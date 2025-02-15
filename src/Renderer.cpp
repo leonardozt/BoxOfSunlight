@@ -2,10 +2,6 @@
 
 namespace BOSL
 { 
-    // Static constants
-    const GLuint Renderer::cubemapImgUnit = GL_TEXTURE0;
-    const GLuint Renderer::outputTexImgUnit = GL_TEXTURE1;
-
     Renderer::Renderer(Scene scene)
         : scene(std::move(scene))
     {
@@ -22,13 +18,6 @@ namespace BOSL
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // update light position (for testing)
-        float zCoord = glm::sin(lightCounter);
-        lightCounter += 0.03f;
-        rtShader.use();
-        rtShader.setUniformVec3("lightPos", glm::vec3(-1.0, 5.0, zCoord * 3));
-        rtShader.stopUsing();
-
         // dispatch compute shader work groups, one for each pixel
         rtShader.use();
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
@@ -40,32 +29,6 @@ namespace BOSL
         quadShader.use();
         quad.draw();
         quadShader.stopUsing();
-    }
-
-    // for testing
-    void init2DTexture(std::string fileName, GLenum format, GLuint imgUnit)
-    {
-        int width, height, nrComponents;
-        std::string path = config::imagesDir + fileName;
-        unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
-        if (!data)
-        {
-            throw BoxOfSunlightError("Texture load failure at path " + path);
-        }
-
-        glActiveTexture(imgUnit);
-        GLuint tex;
-        glGenTextures(1, &tex);
-        glBindTexture(GL_TEXTURE_2D, tex);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-        stbi_image_free(data);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     void Renderer::initShaders()
@@ -87,21 +50,20 @@ namespace BOSL
         // Set values of uniforms
         rtShader.use();
         updateCameraUniforms();
-        rtShader.setUniformInt("cubemap", 0);
+        rtShader.setUniformInt("cubemap", TexImgUnits::cubemap);
 
         // for testing ------------------
         GLuint normalMapImgUnit = GL_TEXTURE2;
         rtShader.setUniformInt("wallNormalMap", 2);
-
-        //stbi_set_flip_vertically_on_load(true);
-
-        init2DTexture("wallNormalMap.jpg", GL_RGB, normalMapImgUnit);
-
         GLuint albedoMapImgUnit = GL_TEXTURE3;
         rtShader.setUniformInt("wallAlbedoMap", 3);
 
-        init2DTexture("wallAlbedoMap.jpg", GL_SRGB, albedoMapImgUnit);
-        
+        glActiveTexture(normalMapImgUnit);
+        scene.wallNormalMap.load("wallNormalMap.jpg", false);
+
+        glActiveTexture(albedoMapImgUnit);
+        scene.wallAlbedoMap.load("wallAlbedoMap.jpg", true);
+
         rtShader.setUniformVec3("wall.t1.v0.pos", scene.t1.v0.pos);
         rtShader.setUniformVec2("wall.t1.v0.uv", scene.t1.v0.uv);
         
@@ -124,16 +86,18 @@ namespace BOSL
 
         rtShader.setUniformMat3("wall.t2.TBN", scene.t2.calculateTBN());
 
-        rtShader.setUniformVec3("lightPos", glm::vec3(-1.0, 2.0, 5.0));
+        rtShader.setUniformVec3("pLight.position", scene.pLight.getPosition());
+        rtShader.setUniformVec3("pLight.emission", scene.pLight.getEmission());
         // ------------------------------
 
         rtShader.stopUsing();
+
         quadShader.use();
-        quadShader.setUniformInt("quadTexture", 1);
+        quadShader.setUniformInt("quadTexture", TexImgUnits::outputTex);
         quadShader.stopUsing();
 
         // Load cubemap for compute shader
-        glActiveTexture(cubemapImgUnit);
+        glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
         scene.cubemap.load();
 
         // Set up output texture
@@ -142,7 +106,7 @@ namespace BOSL
 
     void Renderer::initOutputTexture()
     {
-        glActiveTexture(outputTexImgUnit);
+        glActiveTexture(GL_TEXTURE0 + TexImgUnits::outputTex);
         glGenTextures(1, &outputTex);
         glBindTexture(GL_TEXTURE_2D, outputTex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::windowWidth, config::windowHeight,

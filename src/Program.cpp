@@ -10,9 +10,9 @@ namespace BOSL {
     }
     
     Program::Program(Program&& other) noexcept
-        : linked{other.linked}
-        , isBeingUsed{other.isBeingUsed}
-        , object{other.object}
+        : linked(other.linked)
+        , isBeingUsed(other.isBeingUsed)
+        , object(other.object)
     {
         other.linked = false;
         other.isBeingUsed = false;

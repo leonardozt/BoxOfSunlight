@@ -3,9 +3,35 @@
 #include "Camera.h"
 #include "Cubemap.h"
 #include "Triangle.h"
+#include "Texture.h"
 
 namespace BOSL
 {
+	class PointLight
+	{
+	public:
+		PointLight()
+			: PointLight(glm::vec3(0.0f),glm::vec3(0.0f))
+		{
+			// (intentionally empty)
+		}
+		PointLight(glm::vec3 position, glm::vec3 emission)
+			: position(position)
+			, emission(emission)
+		{
+			// (intentionally empty)
+		}
+		glm::vec3 getPosition() {
+			return position;
+		}
+		glm::vec3 getEmission() {
+			return emission;
+		}
+	private:
+		glm::vec3 position;
+		glm::vec3 emission;
+	};
+
 	class Scene
 	{
 	public:
@@ -17,6 +43,11 @@ namespace BOSL
 		// Wall object (for testing)
 		Triangle t1;
 		Triangle t2;
+		Texture wallNormalMap;
+		Texture wallAlbedoMap;
+
+		// Point light (for testing)
+		PointLight pLight;
 	private:
 		// Data used for initialization of camera
 		struct camAtStart

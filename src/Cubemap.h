@@ -8,6 +8,7 @@
 
 namespace BOSL
 {
+	// Class that wraps an OpenGL Cubemap Texture Object
 	class Cubemap
 	{
 	public:
@@ -23,8 +24,9 @@ namespace BOSL
 		// move assignment
 		Cubemap& operator=(Cubemap&& other) noexcept;
 
+		// Loads image data into OpenGL
+		// (assumes SRGB format)
 		void load() const;
-
 	private:
 		GLuint textureObj;
 

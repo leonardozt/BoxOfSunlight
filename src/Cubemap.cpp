@@ -48,7 +48,7 @@ namespace BOSL
     }
 
     Cubemap::Cubemap(Cubemap&& other) noexcept
-        : textureObj{other.textureObj}
+        : textureObj(other.textureObj)
     {
         other.textureObj = 0;
     }
