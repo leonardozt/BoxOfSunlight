@@ -1,8 +1,8 @@
-#include "Config.h"
-#include "Window.h"
-#include "BoxOfSunlightError.h"
-#include "Renderer.h"
-#include "Debug.h"
+#include "utils\Config.h"
+#include "utils\BoxOfSunlightError.h"
+#include "utils\Debug.h"
+#include "rendering\Window.h"
+#include "rendering\Renderer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

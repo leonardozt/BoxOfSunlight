@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Config.h"
-#include "BoxOfSunlightError.h"
+#include "..\utils\Config.h"
+#include "..\utils\BoxOfSunlightError.h"
 
-#include <string>
 #include <fstream>
 
 namespace BOSL {

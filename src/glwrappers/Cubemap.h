@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Config.h"
-#include "BoxOfSunlightError.h"
+#include "..\utils\Config.h"
+#include "..\utils\BoxOfSunlightError.h"
 
 #include <vector>
-#include <string>
 
 namespace BOSL
 {

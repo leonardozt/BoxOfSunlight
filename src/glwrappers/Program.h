@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Config.h"
+#include "..\utils\Config.h"
 #include "Shader.h"
 
 namespace BOSL {

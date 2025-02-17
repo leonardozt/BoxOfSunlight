@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BoxOfSunlightError.h"
-#include "Scene.h"
-#include "Program.h"
+#include "..\utils\BoxOfSunlightError.h"
+#include "..\scene\Scene.h"
+#include "..\glwrappers\Program.h"
 #include "ScreenQuad.h"
 
 namespace BOSL

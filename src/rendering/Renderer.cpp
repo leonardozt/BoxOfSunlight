@@ -9,7 +9,7 @@ namespace BOSL
 
         if (!checkComputeLimits()) {
             throw new BoxOfSunlightError("The Compute Shader can't"
-                " render the output image with its current size.");
+                " render the output image given its current size.");
         }
     }
 
@@ -35,7 +35,7 @@ namespace BOSL
     {
         // Ray Tracer Shader Program
         std::vector<Shader> ptShaders;
-        Shader computeShader(config::shadersDir + "compute.glsl", GL_COMPUTE_SHADER);
+        Shader computeShader(config::shadersDir + "raytrace.glsl", GL_COMPUTE_SHADER);
         ptShaders.push_back(std::move(computeShader));
         rtShader.link(ptShaders);
 
@@ -54,15 +54,15 @@ namespace BOSL
 
         // for testing ------------------
         GLuint normalMapImgUnit = GL_TEXTURE2;
-        rtShader.setUniformInt("wallNormalMap", 2);
+        rtShader.setUniformInt("normalMap", 2);
         GLuint albedoMapImgUnit = GL_TEXTURE3;
-        rtShader.setUniformInt("wallAlbedoMap", 3);
+        rtShader.setUniformInt("albedoMap", 3);
 
         glActiveTexture(normalMapImgUnit);
-        scene.wallNormalMap.load("wallNormalMap.jpg", false);
+        scene.normalMap.load("Ground060_1K-JPG_NormalGL.jpg", false);
 
         glActiveTexture(albedoMapImgUnit);
-        scene.wallAlbedoMap.load("wallAlbedoMap.jpg", true);
+        scene.albedoMap.load("Ground060_1K-JPG_Color.jpg", true);
 
         rtShader.setUniformVec3("wall.t1.v0.pos", scene.t1.v0.pos);
         rtShader.setUniformVec2("wall.t1.v0.uv", scene.t1.v0.uv);
@@ -88,9 +88,10 @@ namespace BOSL
 
         rtShader.setUniformVec3("pLight.position", scene.pLight.getPosition());
         rtShader.setUniformVec3("pLight.emission", scene.pLight.getEmission());
-
+        
         rtShader.setUniformVec3("sphere.center", scene.sphere.getCenter());
         rtShader.setUniformFloat("sphere.radius", scene.sphere.getRadius());
+        
         // ------------------------------
 
         rtShader.stopUsing();
@@ -100,8 +101,8 @@ namespace BOSL
         quadShader.stopUsing();
 
         // Load cubemap for compute shader
-        glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
-        scene.cubemap.load();
+        //glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
+        //scene.cubemap.load();
 
         // Set up output texture
         initOutputTexture();
@@ -150,11 +151,11 @@ namespace BOSL
     {
         Viewport viewport = scene.camera.calculateViewport();
         rtShader.setUniformVec3("camera.position", scene.camera.getPosition());
-        rtShader.setUniformVec3("viewport.horiz", viewport.horiz);
-        rtShader.setUniformVec3("viewport.vert", viewport.vert);
-        rtShader.setUniformVec3("viewport.pixel00", viewport.pixel00);
-        rtShader.setUniformVec3("viewport.deltaHoriz", viewport.deltaHoriz);
-        rtShader.setUniformVec3("viewport.deltaVert", viewport.deltaVert);
+        rtShader.setUniformVec3("camera.viewport.horiz", viewport.horiz);
+        rtShader.setUniformVec3("camera.viewport.vert", viewport.vert);
+        rtShader.setUniformVec3("camera.viewport.pixel00", viewport.pixel00);
+        rtShader.setUniformVec3("camera.viewport.deltaHoriz", viewport.deltaHoriz);
+        rtShader.setUniformVec3("camera.viewport.deltaVert", viewport.deltaVert);
     }
 
     Renderer::Renderer(Renderer&& other) noexcept

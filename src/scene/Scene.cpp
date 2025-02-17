@@ -4,7 +4,7 @@ namespace BOSL
 {
 	// Static constants
 	const glm::vec3 Scene::camAtStart::worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	const glm::vec3 Scene::camAtStart::position = glm::vec3(-6.0f, 2.0f, 6.0f);
+	const glm::vec3 Scene::camAtStart::position = glm::vec3(0.0f, 2.0f, 5.0f);
 	const glm::vec3 Scene::camAtStart::lookAt = glm::vec3(0.0f, 2.0f, 0.0f);
 	const float Scene::camAtStart::focalLength = 1.0f;
 	const float Scene::camAtStart::vfov = 30.0f;
@@ -37,7 +37,7 @@ namespace BOSL
 		t1 = Triangle(v0, v1, v2);
 		t2 = Triangle(v0, v2, v3);
 
-		pLight = PointLight(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		pLight = PointLight(glm::vec3(3.0f, 2.0f, 2.5f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 		sphere = Sphere(glm::vec3(0.0f, 2.0f, 0.0f), 1.0f);
 		// --------------------------

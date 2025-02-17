@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Config.h"
+#include "..\utils\Config.h"
 
 namespace BOSL
 {

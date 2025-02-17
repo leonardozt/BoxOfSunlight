@@ -1,9 +1,9 @@
 #pragma once
 
+#include "..\glwrappers\Texture.h"
+#include "..\glwrappers\Cubemap.h"
 #include "Camera.h"
-#include "Cubemap.h"
 #include "Triangle.h"
-#include "Texture.h"
 #include "Sphere.h"
 
 namespace BOSL
@@ -45,8 +45,8 @@ namespace BOSL
 		// Wall object (for testing)
 		Triangle t1;
 		Triangle t2;
-		Texture wallNormalMap;
-		Texture wallAlbedoMap;
+		Texture normalMap;
+		Texture albedoMap;
 
 		// Point light (for testing)
 		PointLight pLight;

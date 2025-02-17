@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-#include "BoxOfSunlightError.h"
+#include "..\utils\BoxOfSunlightError.h"
 
 // This class is used to create and manage a glfw window.
 // glfw initialization and window hints need to be done before creation.

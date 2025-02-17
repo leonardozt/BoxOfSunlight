@@ -29,22 +29,38 @@ namespace BOSL {
 
     std::string Shader::loadShader(const std::string& sourcePath)
     {
+        std::string includeIdentifier = "#include ";
+
         std::ifstream file(sourcePath);
         if (!file.is_open())
         {
             throw BoxOfSunlightError("Could not open shader at path " + sourcePath);
         }
 
-        std::string sourceCode;
+        std::string fullSourceCode;
         std::string lineBuffer;
         while (std::getline(file, lineBuffer))
         {
-            sourceCode += lineBuffer + '\n';
+            if (lineBuffer.find(includeIdentifier) != std::string::npos)
+            {
+                // Erase include identifier
+                lineBuffer.erase(0, includeIdentifier.size());
+                // lineBuffer now contains name of the included shader source file
+
+                // Write full path in lineBuffer
+                lineBuffer.insert(0, config::shadersDir);
+
+                fullSourceCode += loadShader(lineBuffer);
+                
+                continue;
+            }
+
+            fullSourceCode += lineBuffer + '\n';
         }
 
         file.close();
 
-        return sourceCode;
+        return fullSourceCode;
     }
 
     GLuint Shader::getObject() const

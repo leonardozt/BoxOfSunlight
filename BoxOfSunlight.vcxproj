@@ -19,40 +19,45 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\Cubemap.cpp" />
-    <ClCompile Include="src\Debug.cpp" />
+    <ClCompile Include="src\scene\Camera.cpp" />
+    <ClCompile Include="src\glwrappers\Cubemap.cpp" />
+    <ClCompile Include="src\utils\Debug.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\Program.cpp" />
-    <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Scene.cpp" />
-    <ClCompile Include="src\ScreenQuad.cpp" />
-    <ClCompile Include="src\Shader.cpp" />
-    <ClCompile Include="src\Sphere.cpp" />
-    <ClCompile Include="src\Texture.cpp" />
-    <ClCompile Include="src\Triangle.cpp" />
-    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\glwrappers\Program.cpp" />
+    <ClCompile Include="src\rendering\Renderer.cpp" />
+    <ClCompile Include="src\scene\Scene.cpp" />
+    <ClCompile Include="src\rendering\ScreenQuad.cpp" />
+    <ClCompile Include="src\glwrappers\Shader.cpp" />
+    <ClCompile Include="src\scene\Sphere.cpp" />
+    <ClCompile Include="src\glwrappers\Texture.cpp" />
+    <ClCompile Include="src\scene\Triangle.cpp" />
+    <ClCompile Include="src\rendering\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\BoxOfSunlightError.h" />
-    <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\Config.h" />
-    <ClInclude Include="src\Cubemap.h" />
-    <ClInclude Include="src\Debug.h" />
-    <ClInclude Include="src\Program.h" />
-    <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\Scene.h" />
-    <ClInclude Include="src\ScreenQuad.h" />
-    <ClInclude Include="src\Shader.h" />
-    <ClInclude Include="src\Sphere.h" />
-    <ClInclude Include="src\Texture.h" />
-    <ClInclude Include="src\Triangle.h" />
-    <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\utils\BoxOfSunlightError.h" />
+    <ClInclude Include="src\scene\Camera.h" />
+    <ClInclude Include="src\utils\Config.h" />
+    <ClInclude Include="src\glwrappers\Cubemap.h" />
+    <ClInclude Include="src\utils\Debug.h" />
+    <ClInclude Include="src\glwrappers\Program.h" />
+    <ClInclude Include="src\rendering\Renderer.h" />
+    <ClInclude Include="src\scene\Scene.h" />
+    <ClInclude Include="src\rendering\ScreenQuad.h" />
+    <ClInclude Include="src\glwrappers\Shader.h" />
+    <ClInclude Include="src\scene\Sphere.h" />
+    <ClInclude Include="src\glwrappers\Texture.h" />
+    <ClInclude Include="src\scene\Triangle.h" />
+    <ClInclude Include="src\rendering\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\compute.glsl" />
-    <None Include="src\shaders\output.frag" />
-    <None Include="src\shaders\output.vert" />
+    <None Include="shaders\common\globals.glsl" />
+    <None Include="shaders\common\sphere.glsl" />
+    <None Include="shaders\common\triangle.glsl" />
+    <None Include="shaders\raytrace.glsl" />
+    <None Include="shaders\common\constants.glsl" />
+    <None Include="shaders\output.frag" />
+    <None Include="shaders\output.vert" />
+    <None Include="shaders\common\uniforms.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
