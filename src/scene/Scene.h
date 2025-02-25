@@ -3,56 +3,55 @@
 #include "..\glwrappers\Texture.h"
 #include "..\glwrappers\Cubemap.h"
 #include "Camera.h"
-#include "Triangle.h"
-#include "Sphere.h"
+
+#include <vector>
 
 namespace BOSL
 {
 	// for testing
-	class PointLight
+	struct PointLight
 	{
-	public:
-		PointLight()
-			: PointLight(glm::vec3(0.0f),glm::vec3(0.0f))
-		{
-			// (intentionally empty)
-		}
-		PointLight(glm::vec3 position, glm::vec3 emission)
-			: position(position)
-			, emission(emission)
-		{
-			// (intentionally empty)
-		}
-		glm::vec3 getPosition() {
-			return position;
-		}
-		glm::vec3 getEmission() {
-			return emission;
-		}
-	private:
 		glm::vec3 position;
 		glm::vec3 emission;
+	};
+
+	struct Vertex {
+		alignas(16) glm::vec4 pos;
+		glm::vec2 uv;
+		// Implicit padding of 8 bites here
+	};
+
+	struct Triangle {
+		Vertex v0;     // offset:  0, size: 32
+		Vertex v1;     // offset: 32, size: 32
+		Vertex v2;     // offset: 64, size: 32
+		glm::mat4 TBN; // offset: 96, size: 64
+	};
+	glm::mat3 triangleTBN(Vertex v0, Vertex v1, Vertex v2);
+
+	struct Sphere {
+		alignas(16) glm::vec4 center;
+		float radius;
 	};
 
 	class Scene
 	{
 	public:
 		Scene();
-		
+
 		Camera camera;
+
 		Cubemap cubemap;
 
-		// Wall object (for testing)
-		Triangle t1;
-		Triangle t2;
+		std::vector<Triangle> triangles;
+		std::vector<Sphere> spheres;
+
 		Texture normalMap;
 		Texture albedoMap;
 
 		// Point light (for testing)
 		PointLight pLight;
 
-		// Sphere object (for testing)
-		Sphere sphere;
 	private:
 		// Data used for initialization of camera
 		struct camAtStart

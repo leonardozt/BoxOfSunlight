@@ -43,6 +43,8 @@ namespace BOSL
 		struct TexImgUnits {
 			static const int cubemap = 0;
 			static const int outputTex = 1;
+			static const int albedoMap = 2;
+			static const int normalMap = 3;
 		};
 
 		// Prepares shader programs for rendering

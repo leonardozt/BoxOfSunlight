@@ -2,10 +2,41 @@
 
 namespace BOSL
 {
+	glm::mat3 triangleTBN(Vertex v0, Vertex v1, Vertex v2) {
+		glm::vec3 p0 = v0.pos;
+		glm::vec3 p1 = v1.pos;
+		glm::vec3 p2 = v2.pos;
+
+		glm::vec2 uv0 = v0.uv;
+		glm::vec2 uv1 = v1.uv;
+		glm::vec2 uv2 = v2.uv;
+
+		// Edges of the triangle : position delta
+		glm::vec3 edge1 = p1 - p0;
+		glm::vec3 edge2 = p2 - p0;
+
+		// UV delta
+		glm::vec2 deltaUV1 = uv1 - uv0;
+		glm::vec2 deltaUV2 = uv2 - uv0;
+
+		// Fractional part of equation (determinant)
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+
+		glm::vec3 tangent = f * (edge1 * deltaUV2.y - edge2 * deltaUV1.y);
+		glm::vec3 bitangent = f * (edge2 * deltaUV1.x - edge1 * deltaUV2.x);
+		glm::vec3 normal = glm::cross(edge1, edge2);
+
+		tangent = glm::normalize(tangent);
+		bitangent = glm::normalize(bitangent);
+		normal = glm::normalize(normal);
+
+		return glm::mat3(tangent, bitangent, normal);
+	}
+
 	// Static constants
 	const glm::vec3 Scene::camAtStart::worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	const glm::vec3 Scene::camAtStart::position = glm::vec3(0.0f, 2.0f, 5.0f);
-	const glm::vec3 Scene::camAtStart::lookAt = glm::vec3(0.0f, 2.0f, 0.0f);
+	const glm::vec3 Scene::camAtStart::position = glm::vec3(0.0f, 0.0f, 5.0f);
+	const glm::vec3 Scene::camAtStart::lookAt = glm::vec3(0.0f, 0.0f, 0.0f);
 	const float Scene::camAtStart::focalLength = 1.0f;
 	const float Scene::camAtStart::vfov = 30.0f;
 
@@ -18,29 +49,9 @@ namespace BOSL
 			camAtStart::focalLength
 		)
 	{
-		// for testing --------------
-		glm::vec3 p0(-1.0, 0.0, 1.0);
-		glm::vec3 p1(1.0, 0.0, 1.0);
-		glm::vec3 p2(1.0, 0.0, -1.0);
-		glm::vec3 p3(-1.0, 0.0, -1.0);
-
-		glm::vec2 uv0(0.0, 0.0);
-		glm::vec2 uv1(1.0, 0.0);
-		glm::vec2 uv2(1.0, 1.0);
-		glm::vec2 uv3(0.0, 1.0);
-
-		Vertex v0(p0, uv0);
-		Vertex v1(p1, uv1);
-		Vertex v2(p2, uv2);
-		Vertex v3(p3, uv3);
-
-		t1 = Triangle(v0, v1, v2);
-		t2 = Triangle(v0, v2, v3);
-
-		pLight = PointLight(glm::vec3(3.0f, 2.0f, 2.5f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-		sphere = Sphere(glm::vec3(0.0f, 2.0f, 0.0f), 1.0f);
-		// --------------------------
+		// for testing
+		pLight.position = glm::vec3(0.0f);
+		pLight.emission = glm::vec3(0.0f);
 	}
 
 }

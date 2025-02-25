@@ -51,48 +51,34 @@ namespace BOSL
         rtShader.use();
         updateCameraUniforms();
         rtShader.setUniformInt("cubemap", TexImgUnits::cubemap);
-
-        // for testing ------------------
-        GLuint normalMapImgUnit = GL_TEXTURE2;
-        rtShader.setUniformInt("normalMap", 2);
-        GLuint albedoMapImgUnit = GL_TEXTURE3;
-        rtShader.setUniformInt("albedoMap", 3);
-
-        glActiveTexture(normalMapImgUnit);
-        scene.normalMap.load("Ground060_1K-JPG_NormalGL.jpg", false);
-
-        glActiveTexture(albedoMapImgUnit);
+        rtShader.setUniformInt("albedoMap", TexImgUnits::albedoMap);
+        rtShader.setUniformInt("normalMap", TexImgUnits::normalMap);
+        
+        glActiveTexture(GL_TEXTURE0 + TexImgUnits::albedoMap);
         scene.albedoMap.load("Ground060_1K-JPG_Color.jpg", true);
-
-        rtShader.setUniformVec3("wall.t1.v0.pos", scene.t1.v0.pos);
-        rtShader.setUniformVec2("wall.t1.v0.uv", scene.t1.v0.uv);
+        glActiveTexture(GL_TEXTURE0 + TexImgUnits::normalMap);
+        scene.normalMap.load("Ground060_1K-JPG_NormalGL.jpg", false);
         
-        rtShader.setUniformVec3("wall.t1.v1.pos", scene.t1.v1.pos);
-        rtShader.setUniformVec2("wall.t1.v1.uv", scene.t1.v1.uv);
-        
-        rtShader.setUniformVec3("wall.t1.v2.pos", scene.t1.v2.pos);
-        rtShader.setUniformVec2("wall.t1.v2.uv", scene.t1.v2.uv);
+        // Pass triangle data
+        GLuint trianglesBuf; // SSBO for triangles
+        glGenBuffers(1, &trianglesBuf);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuf);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, scene.triangles.size() * sizeof(Triangle),
+            scene.triangles.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, trianglesBuf);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  
+        // Pass sphere data
+        GLuint spheresBuf; // SSBO for spheres
+        glGenBuffers(1, &spheresBuf);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, spheresBuf);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, scene.spheres.size() * sizeof(Sphere),
+            scene.spheres.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, spheresBuf);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-        rtShader.setUniformMat3("wall.t1.TBN", scene.t1.calculateTBN());
-
-        rtShader.setUniformVec3("wall.t2.v0.pos", scene.t2.v0.pos);
-        rtShader.setUniformVec2("wall.t2.v0.uv", scene.t2.v0.uv);
-        
-        rtShader.setUniformVec3("wall.t2.v1.pos", scene.t2.v1.pos);
-        rtShader.setUniformVec2("wall.t2.v1.uv", scene.t2.v1.uv);
-
-        rtShader.setUniformVec3("wall.t2.v2.pos", scene.t2.v2.pos);
-        rtShader.setUniformVec2("wall.t2.v2.uv", scene.t2.v2.uv);
-
-        rtShader.setUniformMat3("wall.t2.TBN", scene.t2.calculateTBN());
-
-        rtShader.setUniformVec3("pLight.position", scene.pLight.getPosition());
-        rtShader.setUniformVec3("pLight.emission", scene.pLight.getEmission());
-        
-        rtShader.setUniformVec3("sphere.center", scene.sphere.getCenter());
-        rtShader.setUniformFloat("sphere.radius", scene.sphere.getRadius());
-        
-        // ------------------------------
+        rtShader.setUniformVec3("pLight.position", scene.pLight.position);
+        rtShader.setUniformVec3("pLight.emission", scene.pLight.emission);
 
         rtShader.stopUsing();
 
@@ -102,7 +88,7 @@ namespace BOSL
 
         // Load cubemap for compute shader
         //glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
-        //scene.cubemap.load();
+        //scene.getCubemap().load();
 
         // Set up output texture
         initOutputTexture();

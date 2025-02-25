@@ -1,16 +1,21 @@
-struct Interval {
-    float min;
-    float max;
+struct Vertex {
+    // position
+    vec4 pos;
+    // UV coordinates
+    vec2 uv;
 };
 
-struct HitInfo {
-    bool hit;
-    // distance along ray
-    float t;
-    vec3 p;
-    vec3 normal;
-    // texture coordinates
-    vec2 uv;
+struct Triangle {
+    Vertex v0;
+    Vertex v1;
+    Vertex v2;
+    // Tangent-Bitangent-Normal Matrix
+    mat4 TBN;
+};
+
+struct Sphere {
+    vec4 center;
+    float radius;
 };
 
 struct Ray {
@@ -38,7 +43,20 @@ struct Camera {
     Viewport viewport;
 };
 
-uniform Camera camera;
+struct Interval {
+    float min;
+    float max;
+};
+
+struct HitInfo {
+    bool hit;
+    // distance along ray
+    float t;
+    vec3 p;
+    vec3 normal;
+    // texture coordinates
+    vec2 uv;
+};
 
 // Returns point along the ray at distance t from its origin
 vec3 rayAt(Ray r, float t)
@@ -48,7 +66,7 @@ vec3 rayAt(Ray r, float t)
 
 // Returns ray passing through the center of pixel
 // with coordinates pixelCoords
-Ray rayThroughPixel(ivec2 pixelCoords)
+Ray rayThroughPixel(ivec2 pixelCoords, Camera camera)
 {
     Viewport viewport = camera.viewport;
     vec3 pixelCenter = viewport.pixel00

@@ -28,9 +28,7 @@
     <ClCompile Include="src\scene\Scene.cpp" />
     <ClCompile Include="src\rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\glwrappers\Shader.cpp" />
-    <ClCompile Include="src\scene\Sphere.cpp" />
     <ClCompile Include="src\glwrappers\Texture.cpp" />
-    <ClCompile Include="src\scene\Triangle.cpp" />
     <ClCompile Include="src\rendering\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -44,9 +42,7 @@
     <ClInclude Include="src\scene\Scene.h" />
     <ClInclude Include="src\rendering\ScreenQuad.h" />
     <ClInclude Include="src\glwrappers\Shader.h" />
-    <ClInclude Include="src\scene\Sphere.h" />
     <ClInclude Include="src\glwrappers\Texture.h" />
-    <ClInclude Include="src\scene\Triangle.h" />
     <ClInclude Include="src\rendering\Window.h" />
   </ItemGroup>
   <ItemGroup>
