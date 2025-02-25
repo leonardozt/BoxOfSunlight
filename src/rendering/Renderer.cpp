@@ -55,9 +55,9 @@ namespace BOSL
         rtShader.setUniformInt("normalMap", TexImgUnits::normalMap);
         
         glActiveTexture(GL_TEXTURE0 + TexImgUnits::albedoMap);
-        scene.albedoMap.load("Ground060_1K-JPG_Color.jpg", true);
+        scene.albedoMap.load(scene.albedoMapImgPath, true);
         glActiveTexture(GL_TEXTURE0 + TexImgUnits::normalMap);
-        scene.normalMap.load("Ground060_1K-JPG_NormalGL.jpg", false);
+        scene.normalMap.load(scene.normalMapImgPath, false);
         
         // Pass triangle data
         GLuint trianglesBuf; // SSBO for triangles
@@ -87,8 +87,8 @@ namespace BOSL
         quadShader.stopUsing();
 
         // Load cubemap for compute shader
-        //glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
-        //scene.getCubemap().load();
+        glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
+        scene.cubemap.load();
 
         // Set up output texture
         initOutputTexture();

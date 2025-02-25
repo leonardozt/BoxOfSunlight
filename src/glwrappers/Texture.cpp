@@ -7,14 +7,13 @@ namespace BOSL
 		glGenTextures(1, &object);
 	}
 
-	void Texture::load(const std::string& fileName, bool SRGB) const
+	void Texture::load(const std::string& filePath, bool SRGB) const
 	{
 		int width, height, nrChannels;
-		std::string path = config::imagesDir + fileName;
-		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+		unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data)
 		{
-			throw BoxOfSunlightError("Texture load failure at path " + path);
+			throw BoxOfSunlightError("Texture load failure at path " + filePath);
 		}
 
 		GLint internalFormat;

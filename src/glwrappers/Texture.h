@@ -14,7 +14,7 @@ namespace BOSL
 		Texture();
 
 		// Loads image data into OpenGL context
-		void load(const std::string& fileName, bool SRGB) const;
+		void load(const std::string& filePath, bool SRGB) const;
 
 		// Delete the copy constructor/assignment
 		Texture(const Texture&) = delete;

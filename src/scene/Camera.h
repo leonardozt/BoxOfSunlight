@@ -27,10 +27,13 @@ namespace BOSL
 		
 		glm::vec3 getPosition() const;
 		void setPosition(glm::vec3 position);
+
+		glm::vec3 getLookAt() const;
+		void setLookAt(glm::vec3 lookAt);
 		
 		// Returns Viewport (rectangle in 3D space)
 		// associated with camera
-		Viewport calculateViewport();
+		Viewport calculateViewport() const;
 
 	private:
 		glm::vec3 worldUp;

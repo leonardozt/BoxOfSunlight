@@ -47,7 +47,9 @@ namespace BOSL
 		std::vector<Sphere> spheres;
 
 		Texture normalMap;
+		std::string normalMapImgPath;
 		Texture albedoMap;
+		std::string albedoMapImgPath;
 
 		// Point light (for testing)
 		PointLight pLight;

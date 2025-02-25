@@ -42,7 +42,17 @@ namespace BOSL
 	{
 		this->position = position;
 		calculateDirVecs();
-		calculateViewport();
+	}
+
+	glm::vec3 Camera::getLookAt() const
+	{
+		return lookAt;
+	}
+
+	void Camera::setLookAt(glm::vec3 lookAt)
+	{
+		this->lookAt = lookAt;
+		calculateDirVecs();
 	}
 
 	void Camera::calculateDirVecs()
@@ -52,7 +62,7 @@ namespace BOSL
 		right = normalize(cross(forward, up));
 	}
 
-	Viewport Camera::calculateViewport()
+	Viewport Camera::calculateViewport() const
 	{
 		// Calculate dimensions of viewport
 		float theta = radians(vfov);

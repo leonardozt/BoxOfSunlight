@@ -63,11 +63,11 @@ void main() {
         // specular term
         vec3 toV = normalize(camera.position - info.p);
         vec3 h = normalize(toV + toLight);
-        float specFactor = pow(max(0.0, dot(h, info.normal)), 80.0);
+        float specFactor = pow(max(0.0, dot(h, info.normal)), 8.0);
         vec3 specular = vec3(0.6, 0.6, 0.6) * specFactor;
 
         //color = ambient + diffuse + specular;
-        color = diffuse;
+        color = ambient + specular;
     } else {
         color = texture(cubemap, ray.dir).rgb;
     }

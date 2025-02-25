@@ -17,5 +17,7 @@ namespace BOSL
 		const std::string shadersDir = "..\\..\\..\\shaders\\";
 		// Path relative to executable
 		const std::string imagesDir = "..\\..\\..\\images\\";
+		// Path relative to executable
+		const std::string modelsDir = "..\\..\\..\\models\\";
 	}
 }

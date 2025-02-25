@@ -46,8 +46,9 @@ namespace BOSL
 			camAtStart::position,
 			camAtStart::lookAt,
 			camAtStart::vfov,
-			camAtStart::focalLength
-		)
+			camAtStart::focalLength)
+		, albedoMapImgPath(config::imagesDir + "wallAlbedoMap.jpg")
+		, normalMapImgPath(config::imagesDir + "wallNormalMap.jpg")
 	{
 		// for testing
 		pLight.position = glm::vec3(0.0f);

@@ -4,9 +4,11 @@
 #include "rendering\Window.h"
 #include "rendering\Renderer.h"
 
-
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <stb\stb_image.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tinyobjloader\tiny_obj_loader.h>
 
 // Callback function for GLFW errors
 void glfwErrorCallback(int error, const char* description)
@@ -32,42 +34,86 @@ void initGL()
     BOSL::debug::printComputeLimits();
 }
 
-BOSL::Scene prepareScene() {
+BOSL::Scene createSpheres() {
     BOSL::Scene scene;
 
-    // Wall object
-    glm::vec4 p0(-1.0, -1.0, 1.0, 1.0);
-    glm::vec4 p1(1.0, -1.0, 1.0, 1.0);
-    glm::vec4 p2(1.0, 1.0, 1.0, 1.0);
-    glm::vec4 p3(-1.0, 1.0, 1.0, 1.0);
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(1.8f, 2.3f, -2.0f, 1.0f), 2.0f });
 
-    glm::vec2 uv0(0.0, 0.0);
-    glm::vec2 uv1(1.0, 0.0);
-    glm::vec2 uv2(1.0, 1.0);
-    glm::vec2 uv3(0.0, 1.0);
+    return scene;
+}
 
-    BOSL::Vertex v0{ p0, uv0 };
-    BOSL::Vertex v1{ p1, uv1 };
-    BOSL::Vertex v2{ p2, uv2 };
-    BOSL::Vertex v3{ p3, uv3 };
+BOSL::Scene loadObj(std::string objPath) {
+    BOSL::Scene scene;
+  
+    size_t pos = objPath.find_last_of("\\");
+    std::string mtlBaseDir = objPath.substr(0, pos + 1);
 
-    glm::mat3 TBN1 = BOSL::triangleTBN(v0, v1, v2);
-    glm::mat3 TBN2 = BOSL::triangleTBN(v0, v2, v3);
+    tinyobj::attrib_t attributes;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn;
+    std::string err;
+    bool ret = tinyobj::LoadObj(&attributes, &shapes, &materials,
+        &warn, &err, objPath.c_str(), mtlBaseDir.c_str());
 
-    BOSL::Triangle t1{ v0, v1, v2, glm::mat4(TBN1)};
-    BOSL::Triangle t2{ v0, v2, v3, glm::mat4(TBN2)};
-    
-    scene.triangles.push_back(t1);
-    scene.triangles.push_back(t2);
+    if (!warn.empty()) {
+        std::cerr << "tinyobjloader warning: " << warn << std::endl;
+    }
+    if (!err.empty()) {
+        std::cerr << "tinyobjloader error: " << err << std::endl;
+    }
+    if (!ret) {
+        throw BoxOfSunlightError("tinyobjloader failed to load .obj file");
+    }
 
-    BOSL::PointLight pLight;
-    pLight.position = glm::vec3(3.0f, 2.0f, 2.5f);
-    pLight.emission = glm::vec3(1.0f, 1.0f, 1.0f);
-    scene.pLight = pLight;
-    
-    //BOSL::Sphere sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f };
-    //scene.spheres.push_back(sphere);
+    std::vector<BOSL::Triangle> triangles;
 
+    for (size_t s = 0; s < shapes.size(); s++) {
+        // Each shape contains a mesh
+        tinyobj::mesh_t& mesh = shapes[s].mesh;
+        // Loop over faces (triangles)
+        size_t index_offset = 0;
+        for (size_t f = 0; f < mesh.num_face_vertices.size(); f++) {
+            
+            size_t fv = size_t(mesh.num_face_vertices[f]);
+            if (fv != 3) {
+                throw BoxOfSunlightError("Error: obj model cotains "
+                    "a face that is not a triangle.");
+            }    
+            
+            // Loop over vertices in the face (assumed to be 3)
+            BOSL::Vertex vertices[3];
+            for (size_t v = 0; v < 3; v++) {
+                // access to vertex
+                tinyobj::index_t idx = mesh.indices[index_offset + v];
+
+                tinyobj::real_t vx = attributes.vertices[3 * size_t(idx.vertex_index) + 0];
+                tinyobj::real_t vy = attributes.vertices[3 * size_t(idx.vertex_index) + 1];
+                tinyobj::real_t vz = attributes.vertices[3 * size_t(idx.vertex_index) + 2];
+                glm::vec4 position(vx, vy, vz, 1.0f);
+
+                // Check if `texcoord_index` is negative. negative = no texcoord data
+                if (idx.texcoord_index < 0) {
+                    throw BoxOfSunlightError("texture coordinates not found for vertex in .obj file");
+                }
+                
+                tinyobj::real_t tx = attributes.texcoords[2 * size_t(idx.texcoord_index) + 0];
+                tinyobj::real_t ty = attributes.texcoords[2 * size_t(idx.texcoord_index) + 1];
+                glm::vec2 texCoords(tx, ty);
+
+                vertices[v] = BOSL::Vertex{ position, texCoords };
+            }
+            glm::mat4 TBN = BOSL::triangleTBN(vertices[0],vertices[1],vertices[2]);
+            triangles.push_back(BOSL::Triangle{ vertices[0],vertices[1],vertices[2],TBN });
+            
+            index_offset += 3;
+        }
+    }
+    scene.triangles = triangles;
     return scene;
 }
 
@@ -92,7 +138,25 @@ int main()
     
         initGL();
         
-        BOSL::Scene scene = prepareScene();
+        // Set up scene
+        /*
+        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
+        scene.albedoMapImgPath = BOSL::config::imagesDir + "Texturelabs_Stone_124S.jpg";
+        scene.normalMapImgPath = BOSL::config::imagesDir + "testNormalMap.jpg";
+        scene.camera.setPosition(glm::vec3(-4.0f, 1.3f, 5.5f));
+        scene.camera.setLookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+        */
+        BOSL::Scene scene = createSpheres();
+        scene.albedoMapImgPath = BOSL::config::imagesDir + "uniformBlue.jpg";
+        scene.normalMapImgPath = BOSL::config::imagesDir + "uniformNormalMap.jpg";
+        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 30.0f));
+        // Point light (for testing)
+        BOSL::PointLight pLight;
+        pLight.position = glm::vec3(5.0f, 2.5f, 1.5f);
+        pLight.emission = glm::vec3(5.0f, 5.0f, 5.1f);
+        scene.pLight = pLight;
+
+        // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
         
         // timing 
