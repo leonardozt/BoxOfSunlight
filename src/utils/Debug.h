@@ -7,6 +7,9 @@ namespace BOSL
 {
     namespace debug
     {
+        // Callback function for GLFW errors
+        void glfwErrorCallback(int error, const char* description);
+
         // Callback function that receives debugging messages from OpenGL
         void GLAPIENTRY debugMessageCallback(
             GLenum source,

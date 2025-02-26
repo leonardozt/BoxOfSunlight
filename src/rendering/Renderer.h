@@ -1,12 +1,19 @@
 #pragma once
 
 #include "..\utils\BoxOfSunlightError.h"
+#include "..\utils\Debug.h"
 #include "..\scene\Scene.h"
 #include "..\glwrappers\Program.h"
 #include "ScreenQuad.h"
 
 namespace BOSL
 {
+	// Initializes GLEW and sets the needed OpenGL settings
+	void initGL();
+
+	// Objects of the Renderer class are used to render scenes.
+	// A scene can only be passed to one renderer object.
+	// Before creating a Renderer object, call initGL()
 	class Renderer
 	{
 	public:

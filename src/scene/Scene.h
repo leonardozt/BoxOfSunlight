@@ -34,6 +34,9 @@ namespace BOSL
 		float radius;
 	};
 
+	// Objects of this class are used to store descriptions
+	// of scenes to be rendered.
+	// The OpenGL context needs to be initialized before Scene object creation.
 	class Scene
 	{
 	public:

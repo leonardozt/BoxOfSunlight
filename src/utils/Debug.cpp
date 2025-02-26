@@ -4,6 +4,12 @@ namespace BOSL
 {
 	namespace debug
 	{
+        void glfwErrorCallback(int error, const char* description)
+        {
+            std::string mess = "GLFW Error: " + std::string(description) + "\n";
+            throw BoxOfSunlightError(mess);
+        }
+
         void GLAPIENTRY debugMessageCallback(
             GLenum source,
             GLenum type,

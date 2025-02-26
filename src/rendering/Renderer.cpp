@@ -1,7 +1,23 @@
 #include "Renderer.h"
 
 namespace BOSL
-{ 
+{
+    void initGL()
+    {
+        // Initialize GLEW
+        if (glewInit() != GLEW_OK) {
+            throw BoxOfSunlightError("GLEW failed to initialize");
+        }
+        // Enable Debug Mode
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(debug::debugMessageCallback, 0);
+        // Set Viewport
+        glViewport(0, 0, config::windowWidth, config::windowHeight);
+        // Print limitations for Compute Shaders
+        debug::printComputeLimits();
+    }
+
     Renderer::Renderer(Scene scene)
         : scene(std::move(scene))
     {

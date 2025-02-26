@@ -5,31 +5,39 @@
 
 #include "..\utils\BoxOfSunlightError.h"
 
-// This class is used to create and manage a glfw window.
-// glfw initialization and window hints need to be done before creation.
-class Window {
-public:
-    // Creation makes the OpenGL context of the window current
-    Window(int width, int height, const std::string& title);
+namespace BOSL {
+    // initializes glfw and sets window hints.
+    void initGLFW();
 
-    ~Window();
+    // This class is used to create and manage a glfw window.
+    // Call initGLFW() before you create Window objects.
+    // After you are done with glfw, remember to call glfwTerminate()
+    class Window {
+    public:
+        // Creation makes the OpenGL context of the window current
+        Window(int width, int height, const std::string& title);
 
-    // Delete the copy constructor/assignment
-    Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
+        ~Window();
 
-    // move constructor
-    Window(Window&& other) noexcept;
-    // move assignment
-    Window& operator=(Window&& other) noexcept;
+        // Delete the copy constructor/assignment
+        Window(const Window&) = delete;
+        Window& operator=(const Window&) = delete;
 
-    // Buffer swap
-    void update();
+        // move constructor
+        Window(Window&& other) noexcept;
+        // move assignment
+        Window& operator=(Window&& other) noexcept;
 
-    int shouldClose() { return glfwWindowShouldClose(windowPtr); }
+        // Buffer swap
+        void update();
 
-private:
-    GLFWwindow* windowPtr;
+        // To get a proper value, remember to periodically call glfwPollEvents()
+        // in main loop.
+        int shouldClose() { return glfwWindowShouldClose(windowPtr); }
 
-    void release();
-};
+    private:
+        GLFWwindow* windowPtr;
+
+        void release();
+    };
+}
