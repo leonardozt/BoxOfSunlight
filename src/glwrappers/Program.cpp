@@ -103,10 +103,10 @@ namespace BOSL {
         glUniform1i(glGetUniformLocation(object, name.c_str()), value);
     }
 
-    void Program::setUniformMat3(const std::string& name, const glm::mat3& matrix) const
+    void Program::setUniformUnsignedInt(const std::string& name, unsigned int value) const
     {
-        checkLinkedUsed("setUniformMat3");
-        glUniformMatrix3fv(glGetUniformLocation(object, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
+        checkLinkedUsed("setUniformUnsignedInt");
+        glUniform1ui(glGetUniformLocation(object, name.c_str()), value);
     }
 
     Program::~Program()

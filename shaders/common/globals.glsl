@@ -58,21 +58,40 @@ struct HitInfo {
     vec2 uv;
 };
 
+uint rngState;
+
+uint xorshift() {
+    rngState ^= (rngState << 13);
+    rngState ^= (rngState >> 17);
+    rngState ^= (rngState << 5);
+    return rngState;
+}
+
+// Returns a random float in [0, 1]
+float randomFloat() {
+    return float(xorshift()) * (1.0 / MAX_UINT);    
+}
+
+vec2 sampleUnitSquare() {
+    return vec2(randomFloat() - 0.5, randomFloat() - 0.5);
+}
+
 // Returns point along the ray at distance t from its origin
 vec3 rayAt(Ray r, float t)
 {
     return r.origin + r.dir * t;
 }
 
-// Returns ray passing through the center of pixel
-// with coordinates pixelCoords
-Ray rayThroughPixel(ivec2 pixelCoords, Camera camera)
+// Returns ray passing through a random point point around
+// the pixel coordinates pixelCoords
+Ray rayAroundPixel(ivec2 pixelCoords, Camera camera)
 {
     Viewport viewport = camera.viewport;
-    vec3 pixelCenter = viewport.pixel00
-            + float(pixelCoords.x) * viewport.deltaHoriz
-            + float(pixelCoords.y) * viewport.deltaVert;
-    vec3 dir = normalize(pixelCenter - camera.position);
+    vec2 offset = sampleUnitSquare();
+    vec3 randomPoint = viewport.pixel00
+            + (float(pixelCoords.x)+offset.x) * viewport.deltaHoriz
+            + (float(pixelCoords.y)+offset.y) * viewport.deltaVert;
+    vec3 dir = normalize(randomPoint - camera.position);
     Ray r = {
             camera.position,
             dir

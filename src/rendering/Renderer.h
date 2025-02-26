@@ -39,6 +39,8 @@ namespace BOSL
 		// Shader program used to draw final quad on screen
 		Program quadShader;
 
+		unsigned int frameNumber;
+
 		// ---------------- compute shader data ----------------
 		// SSBO for triangles
 		GLuint trianglesBuf; 
@@ -62,6 +64,14 @@ namespace BOSL
 			"normalMap",
 			"metallicMap",
 			"roughnessMap"
+		};
+		// Image Units used by Compute Shader.
+		// Not to be confused with "Texture Image Units":
+		// Image Units correspond to GLSL image variables,
+		// Texture Image Units correspont to GLSL samplers.
+		enum CompShaderImgUnits {
+			srcImgUnit, // srcImgUnit = 0
+			dstImgUnit,
 		};
 		// -----------------------------------------------------
 
@@ -89,8 +99,8 @@ namespace BOSL
 
 		void passDataToSSBO(GLuint buffer, GLuint index, GLsizeiptr size, const void* data);
 
-		// Creates and adds the quad texture (where the compute
-		// shader saves the output image) to the OpenGL context
+		// Creates and adds the quad texture to the OpenGL context,
+		// connecting it to the output image of the compute shader
 		void initQuadTexture();
 
 		// Checks system's limitations for Compute Shader Workgroups

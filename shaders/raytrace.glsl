@@ -46,17 +46,29 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+// Stores the new, averaged color for the pixel at coordinates 'pixelCoords'
+void storeColor(vec3 newColor, ivec2 pixelCoords) {
+    // calculate average color
+    vec3 prevColor = imageLoad(srcImage, pixelCoords).rgb;
+    vec3 sum = prevColor * frameNumber;
+    vec3 avgColor = (sum + newColor) / (frameNumber + 1);
+    // store output color
+    imageStore(dstImage, pixelCoords, vec4(avgColor, 1.0));
+}
+
 void main() {
-    // calculate dimensions of image
-    ivec2 imgDims = imageSize(outputImg);
+    // calculate image resolution
+    ivec2 imgRes = imageSize(dstImage);
     // set base pixel color
     vec4 pixelColor = vec4(0.0, 0.0, 0.0, 1.0);
     // The Global Work Group ID contains the coordinates
     // of the pixel that we're rendering
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
 
+    rngState = rngStates[pixelCoords.y * imgRes.x + pixelCoords.x];
+
     Interval rayT = {0.1, 999};
-    Ray ray = rayThroughPixel(pixelCoords, camera);
+    Ray ray = rayAroundPixel(pixelCoords, camera);
     
     HitInfo info;
     HitInfo tempInfo;
@@ -111,10 +123,9 @@ void main() {
         */
 
         vec3 N = normalize(info.normal);
-        vec3 V = normalize(info.p);
+        vec3 V = normalize(-info.p);
 
         vec3 albedo = texture(albedoMap, info.uv).rgb;
-        
         float metallic = texture(metallicMap, info.uv).r;
         float roughness = texture(roughnessMap, info.uv).r;
         
@@ -122,7 +133,7 @@ void main() {
         vec3 F0 = vec3(0.04); 
         F0 = mix(F0, albedo, metallic);
 
-        // Rendering equation (with single point light)
+        // Rendering equation (with single point-light)
         vec3 Lo = vec3(0.0);
         // radiance
         vec3 L = normalize(pLight.position - info.p);
@@ -144,14 +155,12 @@ void main() {
             
         float NdotL = max(dot(N, L), 0.0);                
         Lo = (kD * albedo / PI + specular) * radiance * NdotL; 
-
         color = Lo;
     } else {
         color = texture(cubemap, ray.dir).rgb;
     }
-    
-    pixelColor = vec4(color, 1.0);
-
-    // store output pixel color
-    imageStore(outputImg, pixelCoords, pixelColor);
+    // Calculate new random state with xorshift
+    rngStates[pixelCoords.y * imgRes.x + pixelCoords.x] = xorshift();
+    // Store output color
+    storeColor(color, pixelCoords);
 }

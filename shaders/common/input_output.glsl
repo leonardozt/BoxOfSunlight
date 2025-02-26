@@ -1,4 +1,8 @@
-layout(rgba32f, binding = 0) uniform image2D outputImg;
+layout(rgba32f) readonly uniform image2D srcImage;
+layout(rgba32f) writeonly uniform image2D dstImage;
+
+// Number of frames averaged into srcImage 
+uniform uint frameNumber;
 
 uniform samplerCube cubemap;
 
@@ -15,6 +19,10 @@ layout(std430, binding = 1) readonly buffer trianglesBuf {
 
 layout(std430, binding = 2) readonly buffer spheresBuf {
     Sphere spheres[];
+};
+
+layout(std430, binding = 3) buffer rngStateBuf {
+    uint rngStates[];
 };
 
 // for testing

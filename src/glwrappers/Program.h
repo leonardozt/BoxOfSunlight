@@ -30,9 +30,7 @@ namespace BOSL {
 		void setUniformVec2(const std::string& name, const glm::vec2& vector) const;
 		void setUniformFloat(const std::string& name, float value) const;
 		void setUniformInt(const std::string& name, int value) const;
-
-		// for testing (TBN matrix)
-		void setUniformMat3(const std::string& name, const glm::mat3& matrix) const;
+		void setUniformUnsignedInt(const std::string& name, unsigned int value) const;
 	private:
 		bool linked;
 		bool isBeingUsed;
