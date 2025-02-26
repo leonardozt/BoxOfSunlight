@@ -11,10 +11,17 @@ namespace BOSL
 	class Texture
 	{
 	public:
-		Texture();
+		// Parameter SRGB will be ignored when loading image file
+		// for images with a number of channels different from 3.
+		Texture(std::string imgFilePath, bool SRGB = false);
 
-		// Loads image data into OpenGL context
-		void load(const std::string& filePath, bool SRGB) const;
+		// Loads image data into OpenGL context.
+		void load() const;
+
+		void setImgFilePath(std::string path);
+		void setSRGB(bool SRGB);
+
+		const std::string& getImgFilePath();
 
 		// Delete the copy constructor/assignment
 		Texture(const Texture&) = delete;
@@ -28,6 +35,9 @@ namespace BOSL
 		~Texture();
 	private:
 		GLuint object;
+
+		std::string imgFilePath;
+		bool SRGB;
 
 		void release();
 	};

@@ -38,18 +38,17 @@ int main()
         scene.camera.setLookAt(glm::vec3(0.0f, 0.0f, 0.0f));
         */
         BOSL::Scene scene = createSpheres();
-        scene.albedoMapImgPath = BOSL::config::imagesDir + "uniformBlue.jpg";
-        scene.normalMapImgPath = BOSL::config::imagesDir + "uniformNormalMap.jpg";
-        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 30.0f));
+
+        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 20.0f));
         // Point light (for testing)
         BOSL::PointLight pLight;
-        pLight.position = glm::vec3(5.0f, 2.5f, 1.5f);
-        pLight.emission = glm::vec3(5.0f, 5.0f, 5.1f);
+        pLight.position = glm::vec3(3.0f, 5.0f, 6.0f);
+        pLight.emission = glm::vec3(5.0f, 5.0f, 5.0f);
         scene.pLight = pLight;
 
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
-        
+
         // ------------------------------------------------------------------
         // timing 
         double deltaTime = 0.0f; // time between current frame and last frame

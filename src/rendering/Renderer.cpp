@@ -18,15 +18,18 @@ namespace BOSL
         debug::printComputeLimits();
     }
 
+    const std::string Renderer::quadTexName = "quadTexture";
+
     Renderer::Renderer(Scene scene)
         : scene(std::move(scene))
     {
-        initShaders();
-
         if (!checkComputeLimits()) {
             throw new BoxOfSunlightError("The Compute Shader can't"
                 " render the output image given its current size.");
         }
+        glGenBuffers(1, &trianglesBuf);
+        glGenBuffers(1, &spheresBuf);
+        initShaders();
     }
 
     void Renderer::render()
@@ -35,11 +38,11 @@ namespace BOSL
         glClear(GL_COLOR_BUFFER_BIT);
 
         // dispatch compute shader work groups, one for each pixel
-        rtShader.use();
+        compShader.use();
         glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
         // make sure writing to image has finished before read
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        rtShader.stopUsing();
+        compShader.stopUsing();
 
         // normal drawing pass
         quadShader.use();
@@ -49,79 +52,95 @@ namespace BOSL
 
     void Renderer::initShaders()
     {
-        // Ray Tracer Shader Program
-        std::vector<Shader> ptShaders;
+        // ------------------  compute shader setup  ------------------
+        // Compute Shader Program (based on ray tracing)
+        std::vector<Shader> rtShaders;
         Shader computeShader(config::shadersDir + "raytrace.glsl", GL_COMPUTE_SHADER);
-        ptShaders.push_back(std::move(computeShader));
-        rtShader.link(ptShaders);
+        rtShaders.push_back(std::move(computeShader));
+        compShader.link(rtShaders);
 
-        // Output Shader Program
-        std::vector<Shader> screenShaders;
-        Shader screenVS(config::shadersDir + "output.vert", GL_VERTEX_SHADER);
-        Shader screenFS(config::shadersDir + "output.frag", GL_FRAGMENT_SHADER);
-        screenShaders.push_back(std::move(screenVS));
-        screenShaders.push_back(std::move(screenFS));
-        quadShader.link(screenShaders);
+        // point light (for testing)
+        compShader.use();
+        compShader.setUniformVec3("pLight.position", scene.pLight.position);
+        compShader.setUniformVec3("pLight.emission", scene.pLight.emission);
+        compShader.stopUsing();
 
-        // Set values of uniforms
-        rtShader.use();
-        updateCameraUniforms();
-        rtShader.setUniformInt("cubemap", TexImgUnits::cubemap);
-        rtShader.setUniformInt("albedoMap", TexImgUnits::albedoMap);
-        rtShader.setUniformInt("normalMap", TexImgUnits::normalMap);
-        
-        glActiveTexture(GL_TEXTURE0 + TexImgUnits::albedoMap);
-        scene.albedoMap.load(scene.albedoMapImgPath, true);
-        glActiveTexture(GL_TEXTURE0 + TexImgUnits::normalMap);
-        scene.normalMap.load(scene.normalMapImgPath, false);
+        initCameraUniforms();
+        initAllCompShaderTextures();
         
         // Pass triangle data
-        GLuint trianglesBuf; // SSBO for triangles
-        glGenBuffers(1, &trianglesBuf);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuf);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, scene.triangles.size() * sizeof(Triangle),
-            scene.triangles.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, trianglesBuf);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-  
-        // Pass sphere data
-        GLuint spheresBuf; // SSBO for spheres
-        glGenBuffers(1, &spheresBuf);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, spheresBuf);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, scene.spheres.size() * sizeof(Sphere),
-            scene.spheres.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, spheresBuf);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        passDataToSSBO(trianglesBuf, 1, scene.triangles.size() * sizeof(Triangle), scene.triangles.data());
 
-        rtShader.setUniformVec3("pLight.position", scene.pLight.position);
-        rtShader.setUniformVec3("pLight.emission", scene.pLight.emission);
-
-        rtShader.stopUsing();
-
+        // Pass sphere data  
+        passDataToSSBO(spheresBuf, 2, scene.spheres.size() * sizeof(Sphere), scene.spheres.data());
+        // ------------------------------------------------------------
+        // ------------------  output shader setup  -------------------
+        // Output Shader Program (based on rasterization)
+        std::vector<Shader> outputShaders;
+        Shader outputVS(config::shadersDir + "output.vert", GL_VERTEX_SHADER);
+        Shader outputFS(config::shadersDir + "output.frag", GL_FRAGMENT_SHADER);
+        outputShaders.push_back(std::move(outputVS));
+        outputShaders.push_back(std::move(outputFS));
+        quadShader.link(outputShaders);
+        
+        // Set up quad texture
         quadShader.use();
-        quadShader.setUniformInt("quadTexture", TexImgUnits::outputTex);
+        quadShader.setUniformInt("quadTexture", quadTexImgUnit);
         quadShader.stopUsing();
-
-        // Load cubemap for compute shader
-        glActiveTexture(GL_TEXTURE0 + TexImgUnits::cubemap);
-        scene.cubemap.load();
-
-        // Set up output texture
-        initOutputTexture();
+        initQuadTexture();
+        // ------------------------------------------------------------
     }
 
-    void Renderer::initOutputTexture()
+    void Renderer::initAllCompShaderTextures()
     {
-        glActiveTexture(GL_TEXTURE0 + TexImgUnits::outputTex);
-        glGenTextures(1, &outputTex);
-        glBindTexture(GL_TEXTURE_2D, outputTex);
+        compShader.use();
+
+        // cubemap
+        compShader.setUniformInt(CompShaderTexNames[cubemapImgUnit], cubemapImgUnit);
+        glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
+        scene.cubemap.load();
+
+        // albedo map
+        initCompShader2DTex(scene.albedoMap, albedoMapImgUnit);
+        // normal map
+        initCompShader2DTex(scene.normalMap, normalMapImgUnit);
+        // metallic map
+        initCompShader2DTex(scene.metallicMap, metallicMapImgUnit);
+        // roughness map
+        initCompShader2DTex(scene.roughnessMap, roughnessMapImgUnit);
+
+        compShader.stopUsing();
+    }
+
+    void Renderer::initCompShader2DTex(const Texture& tex, CompShaderTexImgUnits imgUnit)
+    {
+        compShader.setUniformInt(CompShaderTexNames[imgUnit], imgUnit);
+        glActiveTexture(GL_TEXTURE0 + imgUnit);
+        tex.load();
+    }
+
+    void Renderer::passDataToSSBO(GLuint buffer, GLuint index, GLsizeiptr size, const void* data)
+    {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+
+    void Renderer::initQuadTexture()
+    {
+        quadShader.use();
+        glActiveTexture(GL_TEXTURE0 + quadTexImgUnit);
+        glGenTextures(1, &quadTexObj);
+        glBindTexture(GL_TEXTURE_2D, quadTexObj);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::windowWidth, config::windowHeight,
             0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindImageTexture(0, outputTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glBindImageTexture(0, quadTexObj, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        quadShader.stopUsing();
     }
 
     bool Renderer::checkComputeLimits()
@@ -149,25 +168,29 @@ namespace BOSL
         return true;
     }
    
-    void Renderer::updateCameraUniforms()
+    void Renderer::initCameraUniforms()
     {
+        compShader.use();
         Viewport viewport = scene.camera.calculateViewport();
-        rtShader.setUniformVec3("camera.position", scene.camera.getPosition());
-        rtShader.setUniformVec3("camera.viewport.horiz", viewport.horiz);
-        rtShader.setUniformVec3("camera.viewport.vert", viewport.vert);
-        rtShader.setUniformVec3("camera.viewport.pixel00", viewport.pixel00);
-        rtShader.setUniformVec3("camera.viewport.deltaHoriz", viewport.deltaHoriz);
-        rtShader.setUniformVec3("camera.viewport.deltaVert", viewport.deltaVert);
+        compShader.setUniformVec3("camera.position", scene.camera.getPosition());
+        compShader.setUniformVec3("camera.viewport.horiz", viewport.horiz);
+        compShader.setUniformVec3("camera.viewport.vert", viewport.vert);
+        compShader.setUniformVec3("camera.viewport.pixel00", viewport.pixel00);
+        compShader.setUniformVec3("camera.viewport.deltaHoriz", viewport.deltaHoriz);
+        compShader.setUniformVec3("camera.viewport.deltaVert", viewport.deltaVert);
+        compShader.stopUsing();
     }
 
     Renderer::Renderer(Renderer&& other) noexcept
         : scene(std::move(other.scene))
-        , rtShader(std::move(other.rtShader))
+        , compShader(std::move(other.compShader))
         , quadShader(std::move(other.quadShader))
+        , trianglesBuf(other.trianglesBuf)
+        , spheresBuf(other.spheresBuf)
         , quad(std::move(other.quad))
-        , outputTex{other.outputTex}
+        , quadTexObj{other.quadTexObj}
     {
-        other.outputTex = 0;
+        other.quadTexObj = 0;
     }
 
     Renderer& Renderer::operator=(Renderer&& other) noexcept
@@ -176,11 +199,13 @@ namespace BOSL
         if (this != &other)
         {
             release();
-            // outputTex is now 0
-            std::swap(outputTex, other.outputTex);
+            // OpenGL objects are now 0
+            std::swap(trianglesBuf, other.trianglesBuf);
+            std::swap(spheresBuf, other.spheresBuf);
+            std::swap(quadTexObj, other.quadTexObj);
 
             scene = std::move(other.scene);
-            rtShader = std::move(other.rtShader);
+            compShader = std::move(other.compShader);
             quadShader = std::move(other.quadShader);
             quad = std::move(other.quad);
         }
@@ -189,8 +214,10 @@ namespace BOSL
 
     void Renderer::release()
     {
-        glDeleteTextures(1, &outputTex);
-        outputTex = 0;
+        glDeleteBuffers(1, &trianglesBuf);
+        glDeleteBuffers(1, &spheresBuf);
+        glDeleteTextures(1, &quadTexObj);
+        quadTexObj = 0;
     }
 
     Renderer::~Renderer()
