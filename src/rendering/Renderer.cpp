@@ -18,6 +18,21 @@ namespace BOSL
         debug::printComputeLimits();
     }
 
+    const std::array<std::string, Renderer::NUM_COMP_TEX_IMG_UNITS>
+        Renderer::compShaderTexNames =
+    {
+        "cubemap",
+        "albedoMap",
+        "normalMap",
+        "metallicMap",
+        "roughnessMap"
+    };
+    const std::array<std::string, Renderer::NUM_COMP_IMG_UNITS>
+        Renderer::compShaderImgNames =
+    {
+        "srcImage",
+        "dstImage"
+    };
     const std::string Renderer::quadTexName = "quadTexture";
 
     Renderer::Renderer(Scene scene)
@@ -30,33 +45,53 @@ namespace BOSL
         }
         glGenBuffers(1, &trianglesBuf);
         glGenBuffers(1, &spheresBuf);
-        initShaders();
+        initAllShaders();
     }
 
     void Renderer::render()
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        // dispatch compute shader work groups, one for each pixel
+ 
+        // Render chunks one at a time
         compShader.use();
-        compShader.setUniformUnsignedInt("frameNumber", frameNumber);
-        frameNumber++;
-        glDispatchCompute((GLuint)config::windowWidth, (GLuint)config::windowHeight, 1);
-        // make sure writing to image has finished before read
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        constexpr glm::uvec2 numChunks = config::numChunks;
+        constexpr unsigned int chunkWidth = config::windowWidth / numChunks.x;
+        constexpr unsigned int chunkHeight = config::windowHeight / numChunks.y;
+        for (unsigned int j = 0; j < numChunks.y; j++) {
+            for (unsigned int i = 0; i < numChunks.x; i++) {
+                // set uniforms
+                compShader.setUniformUnsignedInt("frameNumber", frameNumber);
+                compShader.setUniformUnsignedIntVec2("chunkOffset",
+                    glm::uvec2(chunkWidth*i, chunkHeight*j));
+
+                // dispatch compute shader work groups, one for each pixel in chunk
+                glDispatchCompute((GLuint)chunkWidth, (GLuint)chunkHeight, 1);
+                // make sure writing to image has finished before read
+                glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);   
+            }
+        }
         compShader.stopUsing();
 
-        // normal drawing pass
+        // send rendered texture to quad shader for normal drawing pass
         quadShader.use();
         quad.draw();
         quadShader.stopUsing();
+
+        frameNumber++;
     }
 
-    void Renderer::initShaders()
+    void Renderer::initAllShaders()
     {
-        // ------------------  compute shader setup  ------------------
-        // Compute Shader Program (based on ray tracing)
+        initCompShader();
+        initQuadShader();
+        // quad texture is used by both shaders
+        // (one writes on it, the other reads)
+        initQuadTexture();
+    }
+
+    void Renderer::initCompShader()
+    {
         std::vector<Shader> rtShaders;
         Shader computeShader(config::shadersDir + "raytrace.glsl", GL_COMPUTE_SHADER);
         rtShaders.push_back(std::move(computeShader));
@@ -69,48 +104,44 @@ namespace BOSL
         compShader.stopUsing();
 
         // random numbers (test)
-        std::vector<GLuint> seeds(config::windowWidth * config::windowHeight);
-        for (unsigned int j = 0; j < config::windowHeight; j++) {
-            for (unsigned int i = 0; i < config::windowWidth; i++) {
-                seeds[j * config::windowWidth + i] = rand();
-            }
+        std::vector<unsigned int> randomSeeds;
+        for (unsigned int i = 0; i < config::windowWidth*config::windowHeight; i++) {
+                randomSeeds.push_back(rand());
         }
         GLuint rngState;
         glGenBuffers(1, &rngState);
-        passDataToSSBO(rngState, 3, seeds.size() * sizeof(GLuint), seeds.data());
+        passDataToSSBO(rngState, rngStateBufIdx,
+            randomSeeds.size() * sizeof(GLuint), randomSeeds.data(), GL_DYNAMIC_DRAW);
 
         initCameraUniforms();
         initAllCompShaderTextures();
         
         // Pass triangle data
-        passDataToSSBO(trianglesBuf, 1, scene.triangles.size() * sizeof(Triangle), scene.triangles.data());
-
+        passDataToSSBO(trianglesBuf, trianglesBufIdx,
+            scene.triangles.size() * sizeof(Triangle), scene.triangles.data());
         // Pass sphere data  
-        passDataToSSBO(spheresBuf, 2, scene.spheres.size() * sizeof(Sphere), scene.spheres.data());
-        // ------------------------------------------------------------
-        // ------------------  output shader setup  -------------------
-        // Output Shader Program (based on rasterization)
+        passDataToSSBO(spheresBuf, spheresBufIdx,
+            scene.spheres.size() * sizeof(Sphere), scene.spheres.data());
+    }
+
+    void Renderer::initQuadShader()
+    {
         std::vector<Shader> outputShaders;
         Shader outputVS(config::shadersDir + "quad.vert", GL_VERTEX_SHADER);
         Shader outputFS(config::shadersDir + "quad.frag", GL_FRAGMENT_SHADER);
         outputShaders.push_back(std::move(outputVS));
         outputShaders.push_back(std::move(outputFS));
         quadShader.link(outputShaders);
-        
-        initQuadTexture();
-        // ------------------------------------------------------------
     }
 
     void Renderer::initAllCompShaderTextures()
     {
         compShader.use();
 
-        /*
         // cubemap
-        compShader.setUniformInt(CompShaderTexNames[cubemapImgUnit], cubemapImgUnit);
+        compShader.setUniformInt(compShaderTexNames.at(cubemapImgUnit), cubemapImgUnit);
         glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
         scene.cubemap.load();
-        */
 
         // albedo map
         initCompShader2DTex(scene.albedoMap, albedoMapImgUnit);
@@ -126,15 +157,16 @@ namespace BOSL
 
     void Renderer::initCompShader2DTex(const Texture& tex, CompShaderTexImgUnits imgUnit)
     {
-        compShader.setUniformInt(CompShaderTexNames[imgUnit], imgUnit);
+        compShader.setUniformInt(compShaderTexNames.at(imgUnit), imgUnit);
         glActiveTexture(GL_TEXTURE0 + imgUnit);
         tex.load();
     }
 
-    void Renderer::passDataToSSBO(GLuint buffer, GLuint index, GLsizeiptr size, const void* data)
+    void Renderer::passDataToSSBO(GLuint buffer, GLuint index,
+        GLsizeiptr size, const void* data, GLenum usage)
     {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_STATIC_DRAW);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, usage);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
@@ -142,11 +174,11 @@ namespace BOSL
     void Renderer::initQuadTexture()
     {
         quadShader.use();
-        quadShader.setUniformInt("quadTexture", quadTexImgUnit);
+        quadShader.setUniformInt(quadTexName, quadTexImgUnit);
         quadShader.stopUsing();
         compShader.use();
-        compShader.setUniformInt("srcImage", srcImgUnit);
-        compShader.setUniformInt("dstImage", dstImgUnit);
+        compShader.setUniformInt(compShaderImgNames.at(srcImgUnit), srcImgUnit);
+        compShader.setUniformInt(compShaderImgNames.at(dstImgUnit), dstImgUnit);
         compShader.stopUsing();
         glActiveTexture(GL_TEXTURE0 + quadTexImgUnit);
         glGenTextures(1, &quadTexObj);
@@ -157,10 +189,11 @@ namespace BOSL
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindImageTexture(srcImgUnit, quadTexObj, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);   
+        glBindImageTexture(srcImgUnit, quadTexObj, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F); 
         glBindImageTexture(dstImgUnit, quadTexObj, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     }
 
+    // TODO: update to base check on number of chunks!
     bool Renderer::checkComputeLimits()
     {
         GLint workGroupCount[2];
@@ -172,17 +205,6 @@ namespace BOSL
             return false;
         }
 
-        /*
-        GLint workGroupSize[3];
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &workGroupSize[0]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &workGroupSize[1]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &workGroupSize[2]);
-        */
-        // TODO: check local size (within pixel) and number of invocations
-        /*
-        GLint workGroupInv;
-        glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupInv);
-        */
         return true;
     }
    

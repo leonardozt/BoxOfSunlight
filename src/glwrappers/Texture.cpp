@@ -2,10 +2,23 @@
 
 namespace BOSL
 {
-	Texture::Texture(std::string imgFilePath, bool SRGB)
-		: imgFilePath(imgFilePath)
-		, SRGB(SRGB)
+	const std::vector<GLint> Texture::supportedFormats =
 	{
+		GL_RED,
+		GL_RGB,
+		GL_SRGB,
+		GL_RGBA,
+		GL_RGB16F
+	};
+
+	Texture::Texture(std::string imgFilePath, GLint internalFormat)
+	{
+		if (!isSupported(internalFormat)) {
+			throw BoxOfSunlightError("Error when creating Texture object: "
+					"the specified internal format is not supported.");
+		}
+		this->imgFilePath = imgFilePath;
+		this->internalFormat = internalFormat;
 		glGenTextures(1, &object);
 	}
 
@@ -18,26 +31,39 @@ namespace BOSL
 			throw BoxOfSunlightError("Texture load failure at path " + imgFilePath);
 		}
 
-		// default RGB
-		GLint internalFormat = GL_RGB;
-		GLenum format = internalFormat;
-		
-		if (nrChannels == 1) {
-			internalFormat = GL_RED;
-			format = internalFormat;
+		GLenum format;
+		bool error = false;
+		int requiredChannels;
+		switch (internalFormat)
+		{
+			case GL_RED:
+				format = internalFormat;
+				requiredChannels = 1;
+				break;
+			case GL_RGB:
+				format = internalFormat;
+				requiredChannels = 3;
+				break;
+			case GL_SRGB:
+				format = GL_RGB;
+				requiredChannels = 3;
+				break;
+			case GL_RGBA:
+				format = internalFormat;
+				requiredChannels = 4;
+			case GL_RGB16F:
+				format = GL_RGB;
+				requiredChannels = 3;
+			default:
+				throw BoxOfSunlightError(
+					"Texture::load() - received an unknown format "
+					" for image " + imgFilePath);
 		}
-		else if (nrChannels == 3) {
-			SRGB ? internalFormat = GL_SRGB : internalFormat = GL_RGB;
-			format = GL_RGB;
-		} else if (nrChannels == 4) {
-			internalFormat = GL_RGBA;
-			format = internalFormat;
-		} else{
-			throw BoxOfSunlightError("Texture::load(const std::string& filePath, bool SRGB) -"
-				" Image " + imgFilePath +
-				" uses a format that isn't recognised.");
+		if (requiredChannels != nrChannels) {
+			throw BoxOfSunlightError("Texture::load() - the requestested internalFormat "
+				"is incompatible with the number of channels in " + imgFilePath);
 		}
-	
+
 		glBindTexture(GL_TEXTURE_2D, object);
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
@@ -53,21 +79,31 @@ namespace BOSL
 		imgFilePath = path;
 	}
 
-	void Texture::setSRGB(bool SRGB) {
-		this->SRGB = SRGB;
+	void Texture::setInternalFormat(GLint internalFormat) {
+		this->internalFormat = internalFormat;
 	}
 
-	const std::string& Texture::getImgFilePath()
-	{
+	const std::string& Texture::getImgFilePath() {
 		return imgFilePath;
+	}
+
+	bool Texture::isSupported(GLint internalFormat)
+	{
+		bool supported = false;
+		for (unsigned int i = 0; i < supportedFormats.size(); i++) {
+			if (internalFormat == supportedFormats.at(i)) {
+				supported = true;
+				break;
+			}
+		}
+		return supported;
 	}
 
 	Texture::Texture(Texture&& other) noexcept
 		: object(other.object)
 		, imgFilePath(other.imgFilePath)
-		, SRGB(other.SRGB)
+		, internalFormat(other.internalFormat)
 	{
-		other.imgFilePath = "";
 		other.object = 0;
 	}
 
@@ -81,9 +117,7 @@ namespace BOSL
 			std::swap(object, other.object);
 
 			imgFilePath = other.imgFilePath;
-			SRGB = other.SRGB;
-
-			other.imgFilePath = "";
+			internalFormat = other.internalFormat;
 		}
 		return *this;
 	}

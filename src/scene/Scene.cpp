@@ -47,10 +47,10 @@ namespace BOSL
 			camAtStart::lookAt,
 			camAtStart::vfov,
 			camAtStart::focalLength)
-		, albedoMap(config::imagesDir + "albedo.png", true)
-		, normalMap(config::imagesDir + "normal.png")
-		, metallicMap(config::imagesDir + "metallic.png")
-		, roughnessMap(config::imagesDir + "roughness.png")
+		, albedoMap(config::imagesDir + "learnopengl\\albedo.png", GL_SRGB)
+		, normalMap(config::imagesDir + "learnopengl\\normal.png", GL_RGB)
+		, metallicMap(config::imagesDir + "learnopengl\\metallic.png", GL_RED)
+		, roughnessMap(config::imagesDir + "learnopengl\\roughness.png", GL_RED)
 	{
 		// for testing
 		pLight.position = glm::vec3(0.0f);

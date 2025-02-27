@@ -91,6 +91,12 @@ namespace BOSL {
         glUniform2fv(glGetUniformLocation(object, name.c_str()), 1, &vector[0]);
     }
 
+    void Program::setUniformUnsignedIntVec2(const std::string& name, const glm::uvec2& vector) const
+    {
+        checkLinkedUsed("setUniformUnsignedIntVec2");
+        glUniform2uiv(glGetUniformLocation(object, name.c_str()), 1, &vector[0]);
+    }
+
     void Program::setUniformFloat(const std::string& name, float value) const
     {
         checkLinkedUsed("setUniformFloat");
@@ -107,6 +113,12 @@ namespace BOSL {
     {
         checkLinkedUsed("setUniformUnsignedInt");
         glUniform1ui(glGetUniformLocation(object, name.c_str()), value);
+    }
+
+    void Program::setUniformMat4(const std::string& name, glm::mat4 matrix) const
+    {
+        checkLinkedUsed("setUniformMat4");
+        glUniformMatrix4fv(glGetUniformLocation(object, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
     }
 
     Program::~Program()

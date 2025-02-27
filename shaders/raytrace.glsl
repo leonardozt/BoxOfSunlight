@@ -1,4 +1,4 @@
-#version 430
+#version 460
 layout(local_size_x = 1, local_size_y = 1) in;
 
 #include common\constants.glsl
@@ -63,7 +63,7 @@ void main() {
     vec4 pixelColor = vec4(0.0, 0.0, 0.0, 1.0);
     // The Global Work Group ID contains the coordinates
     // of the pixel that we're rendering
-    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy) + ivec2(chunkOffset);
 
     rngState = rngStates[pixelCoords.y * imgRes.x + pixelCoords.x];
 
@@ -155,11 +155,16 @@ void main() {
             
         float NdotL = max(dot(N, L), 0.0);                
         Lo = (kD * albedo / PI + specular) * radiance * NdotL; 
-        color = Lo;
+
+        // (improvised) ambient term
+        vec3 ambientLight = texture(cubemap, info.normal).rgb;
+        vec3 ambient = ambientLight * albedo;
+        color = ambient + Lo;
     } else {
         color = texture(cubemap, ray.dir).rgb;
     }
-    // Calculate new random state with xorshift
+
+    // Calculate new random state with xorshift and save
     rngStates[pixelCoords.y * imgRes.x + pixelCoords.x] = xorshift();
     // Store output color
     storeColor(color, pixelCoords);

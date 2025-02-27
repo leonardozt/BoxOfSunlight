@@ -3,6 +3,8 @@
 #include "..\utils\Config.h"
 #include "..\utils\BoxOfSunlightError.h"
 
+#include <vector>
+
 #include <stb/stb_image.h>
 
 namespace BOSL
@@ -13,15 +15,17 @@ namespace BOSL
 	public:
 		// Parameter SRGB will be ignored when loading image file
 		// for images with a number of channels different from 3.
-		Texture(std::string imgFilePath, bool SRGB = false);
+		Texture(std::string imgFilePath, GLint internalFormat = GL_RGB);
 
 		// Loads image data into OpenGL context.
 		void load() const;
 
 		void setImgFilePath(std::string path);
-		void setSRGB(bool SRGB);
+		void setInternalFormat(GLint internalFormat);
 
 		const std::string& getImgFilePath();
+
+		static bool isSupported(GLint internalFormat);
 
 		// Delete the copy constructor/assignment
 		Texture(const Texture&) = delete;
@@ -34,10 +38,15 @@ namespace BOSL
 		
 		~Texture();
 	private:
+		// OpenGL texture object
 		GLuint object;
+		
+		// internal format of image
+		GLuint internalFormat;
+		// supported internal formats for images
+		static const std::vector<GLint> supportedFormats;
 
 		std::string imgFilePath;
-		bool SRGB;
 
 		void release();
 	};

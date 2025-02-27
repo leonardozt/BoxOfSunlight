@@ -30,20 +30,22 @@ int main()
         BOSL::initGL();
 
         // Set up scene
-        /*
-        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
-        scene.albedoMapImgPath = BOSL::config::imagesDir + "Texturelabs_Stone_124S.jpg";
-        scene.normalMapImgPath = BOSL::config::imagesDir + "testNormalMap.jpg";
-        scene.camera.setPosition(glm::vec3(-4.0f, 1.3f, 5.5f));
-        scene.camera.setLookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-        */
-        BOSL::Scene scene = createSpheres();
+        
+        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
+        scene.camera.setPosition(glm::vec3(-5.0f, 1.0f, 5.5f));
+        
+        //BOSL::Scene scene = createSpheres();
+        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 20.0f));
+        
+        scene.albedoMap.setImgFilePath(BOSL::config::imagesDir+"Metal048A_2K-JPG\\Metal048A_2K-JPG_Color.jpg");
+        scene.normalMap.setImgFilePath(BOSL::config::imagesDir + "Metal048A_2K-JPG\\Metal048A_2K-JPG_NormalGL.jpg");
+        scene.metallicMap.setImgFilePath(BOSL::config::imagesDir + "Metal048A_2K-JPG\\Metal048A_2K-JPG_Metalness.jpg");
+        scene.roughnessMap.setImgFilePath(BOSL::config::imagesDir + "Metal048A_2K-JPG\\Metal048A_2K-JPG_Roughness.jpg");
 
-        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 20.0f));
         // Point light (for testing)
         BOSL::PointLight pLight;
         pLight.position = glm::vec3(3.0f, 5.0f, 6.0f);
-        pLight.emission = glm::vec3(5.0f, 5.0f, 5.0f);
+        pLight.emission = glm::vec3(10.0f, 10.0f, 10.0f);
         scene.pLight = pLight;
 
         // Create renderer object
@@ -67,8 +69,8 @@ int main()
             double currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
-            // Print only every 500 frames
-            if (fCounter > 500) {
+            // Print only every 100 frames
+            if (fCounter > 100) {
                 std::cout << "FPS: " << 1 / deltaTime << std::endl;
                 fCounter = 0;
             }

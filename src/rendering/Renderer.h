@@ -1,10 +1,13 @@
 #pragma once
 
 #include "..\utils\BoxOfSunlightError.h"
+#include "..\utils\Config.h"
 #include "..\utils\Debug.h"
 #include "..\scene\Scene.h"
 #include "..\glwrappers\Program.h"
 #include "ScreenQuad.h"
+
+#include <array>
 
 namespace BOSL
 {
@@ -37,6 +40,7 @@ namespace BOSL
 		// Compute Shader program, based on ray tracing
 		Program compShader;
 		// Shader program used to draw final quad on screen
+		// (based on rasterization)
 		Program quadShader;
 
 		unsigned int frameNumber;
@@ -54,24 +58,27 @@ namespace BOSL
 			normalMapImgUnit,
 			metallicMapImgUnit,
 			roughnessMapImgUnit,
-			NUM_COMP_IMG_UNITS,
+			NUM_COMP_TEX_IMG_UNITS,
 		};
 		// Names of Texture used by Compute Shader
-		const std::string CompShaderTexNames[NUM_COMP_IMG_UNITS] =
-		{
-			"cubemap",
-			"albedoMap",
-			"normalMap",
-			"metallicMap",
-			"roughnessMap"
-		};
+		static const std::array<std::string, NUM_COMP_TEX_IMG_UNITS> compShaderTexNames;
+		
 		// Image Units used by Compute Shader.
-		// Not to be confused with "Texture Image Units":
+		// Not to be confused with "Texture Image Units"!
 		// Image Units correspond to GLSL image variables,
 		// Texture Image Units correspont to GLSL samplers.
 		enum CompShaderImgUnits {
 			srcImgUnit, // srcImgUnit = 0
 			dstImgUnit,
+			NUM_COMP_IMG_UNITS
+		};
+		static const std::array<std::string, NUM_COMP_IMG_UNITS> compShaderImgNames;
+
+		// Indexes of SSBOs used in Compute Shader
+		enum CompShaderSSBOIndexes {
+			trianglesBufIdx,
+			spheresBufIdx,
+			rngStateBufIdx
 		};
 		// -----------------------------------------------------
 
@@ -81,13 +88,17 @@ namespace BOSL
 		// Texture that will be mapped on quad (OpenGL object)
 		GLuint quadTexObj;
 		// Texture Image Unit of quad texture
-		static const unsigned int quadTexImgUnit = NUM_COMP_IMG_UNITS; // (next available unit)
+		static const unsigned int quadTexImgUnit = NUM_COMP_TEX_IMG_UNITS; // (next available unit)
 		// Name of quad texture in GLSL Shader
 		static const std::string quadTexName;
 		//----------------------------------------------------------
 
-		// Prepares shader programs for rendering
-		void initShaders();
+		// Prepares all shader programs for rendering
+		void initAllShaders();
+		// Prepares everything that's needed by the compute shader program
+		void initCompShader();
+		// Prepares everything that's needed by the quad shader program
+		void initQuadShader();
 
 		void initCameraUniforms();
 
@@ -97,13 +108,15 @@ namespace BOSL
 		// compShader needs to be in use at time of call
 		void initCompShader2DTex(const Texture& tex, CompShaderTexImgUnits imgUnit);
 
-		void passDataToSSBO(GLuint buffer, GLuint index, GLsizeiptr size, const void* data);
+		void passDataToSSBO(GLuint buffer, GLuint index,
+			GLsizeiptr size, const void* data, GLenum usage = GL_STATIC_DRAW);
 
 		// Creates and adds the quad texture to the OpenGL context,
 		// connecting it to the output image of the compute shader
 		void initQuadTexture();
 
-		// Checks system's limitations for Compute Shader Workgroups
+		// Checks system's limitations for Compute Shader Workgroups,
+		// Returns false if limitations are too low.
 		bool checkComputeLimits();
 
 		void release();

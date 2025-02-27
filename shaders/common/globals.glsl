@@ -76,6 +76,25 @@ vec2 sampleUnitSquare() {
     return vec2(randomFloat() - 0.5, randomFloat() - 0.5);
 }
 
+vec2 tentFilterPixel() {
+    // 2x2 subpixel grid
+    float r1 = 2 * randomFloat();
+    float r2 = 2 * randomFloat();
+    float dx;
+    if (r1 < 1) {
+        dx = sqrt(r1) - 1;
+    } else {
+        dx = 1 - sqrt(2 - r1);
+    }
+    float dy;
+    if (r2 < 1) {
+        dy = sqrt(r2) - 1;
+    } else {
+        dy = 1 - sqrt(2 - r2);
+    }
+    return vec2(r1, r2);
+}
+
 // Returns point along the ray at distance t from its origin
 vec3 rayAt(Ray r, float t)
 {
@@ -87,7 +106,7 @@ vec3 rayAt(Ray r, float t)
 Ray rayAroundPixel(ivec2 pixelCoords, Camera camera)
 {
     Viewport viewport = camera.viewport;
-    vec2 offset = sampleUnitSquare();
+    vec2 offset = tentFilterPixel();
     vec3 randomPoint = viewport.pixel00
             + (float(pixelCoords.x)+offset.x) * viewport.deltaHoriz
             + (float(pixelCoords.y)+offset.y) * viewport.deltaVert;

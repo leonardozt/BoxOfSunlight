@@ -13,15 +13,15 @@ uniform sampler2D roughnessMap;
 
 uniform Camera camera;
 
-layout(std430, binding = 1) readonly buffer trianglesBuf {
+layout(std430, binding = 0) readonly buffer trianglesBuf {
     Triangle triangles[];
 };
 
-layout(std430, binding = 2) readonly buffer spheresBuf {
+layout(std430, binding = 1) readonly buffer spheresBuf {
     Sphere spheres[];
 };
 
-layout(std430, binding = 3) buffer rngStateBuf {
+layout(std430, binding = 2) buffer rngStateBuf {
     uint rngStates[];
 };
 
@@ -31,3 +31,6 @@ struct PointLight {
     vec3 emission;
 };
 uniform PointLight pLight;
+
+// Offset of current chunk (test)
+uniform uvec2 chunkOffset;
