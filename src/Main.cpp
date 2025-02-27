@@ -31,11 +31,11 @@ int main()
 
         // Set up scene
         
-        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
-        scene.camera.setPosition(glm::vec3(-5.0f, 1.0f, 5.5f));
+        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
+        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
         
-        //BOSL::Scene scene = createSpheres();
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 20.0f));
+        BOSL::Scene scene = createSpheres();
+        scene.camera.setPosition(glm::vec3(-20.0f, 0.0f, -30.0f));
         
         scene.albedoMap.setImgFilePath(BOSL::config::imagesDir+"Metal048A_2K-JPG\\Metal048A_2K-JPG_Color.jpg");
         scene.normalMap.setImgFilePath(BOSL::config::imagesDir + "Metal048A_2K-JPG\\Metal048A_2K-JPG_NormalGL.jpg");
@@ -45,7 +45,7 @@ int main()
         // Point light (for testing)
         BOSL::PointLight pLight;
         pLight.position = glm::vec3(3.0f, 5.0f, 6.0f);
-        pLight.emission = glm::vec3(10.0f, 10.0f, 10.0f);
+        pLight.emission = glm::vec3(0.0f);
         scene.pLight = pLight;
 
         // Create renderer object
@@ -96,7 +96,7 @@ BOSL::Scene createSpheres() {
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(1.8f, 2.3f, -2.0f, 1.0f), 2.0f });
+    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(1.8f, 2.3f, -2.0f, 1.0f), 2.0f });
 
     return scene;
 }

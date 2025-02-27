@@ -50,7 +50,6 @@
     <None Include="shaders\common\sphere.glsl" />
     <None Include="shaders\common\triangle.glsl" />
     <None Include="shaders\raytrace.glsl" />
-    <None Include="shaders\common\constants.glsl" />
     <None Include="shaders\output.frag" />
     <None Include="shaders\output.vert" />
     <None Include="shaders\common\uniforms.glsl" />

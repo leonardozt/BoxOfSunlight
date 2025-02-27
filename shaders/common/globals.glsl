@@ -1,3 +1,6 @@
+#define PI 3.14159265358979323
+#define MAX_UINT 4294967295.0
+
 struct Vertex {
     // position
     vec4 pos;

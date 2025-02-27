@@ -1,7 +1,6 @@
 #version 460
 layout(local_size_x = 1, local_size_y = 1) in;
 
-#include common\constants.glsl
 #include common\globals.glsl
 #include common\input_output.glsl
 #include common\hit.glsl
@@ -46,6 +45,35 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 cookTorranceBRDF(vec2 uv, vec3 V, vec3 N, vec3 L)
+{
+        vec3 albedo = texture(albedoMap, uv).rgb;
+        float metallic = texture(metallicMap, uv).r;
+        float roughness = texture(roughnessMap, uv).r;
+        
+        // Fresnel
+        vec3 F0 = vec3(0.04); 
+        F0 = mix(F0, albedo, metallic);
+        
+        // radiance
+        vec3 H = normalize(V + L);
+        
+        // cook-torrance brdf
+        float NDF = DistributionGGX(N, H, roughness);        
+        float G   = GeometrySmith(N, V, L, roughness);      
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+        kD *= 1.0 - metallic; // nullify kD if surface is metallic
+        
+        vec3 numerator    = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        vec3 specular     = numerator / denominator;  
+        
+        return kD * albedo / PI + specular;
+}
+
 // Stores the new, averaged color for the pixel at coordinates 'pixelCoords'
 void storeColor(vec3 newColor, ivec2 pixelCoords) {
     // calculate average color
@@ -54,6 +82,13 @@ void storeColor(vec3 newColor, ivec2 pixelCoords) {
     vec3 avgColor = (sum + newColor) / (frameNumber + 1);
     // store output color
     imageStore(dstImage, pixelCoords, vec4(avgColor, 1.0));
+}
+
+vec3 cosineWeightedSampleOnHemisphere(float u1, float u2) {
+    float cosTheta = u1;
+    float sinTheta = sqrt(1.0 - pow(u1,2));
+    float phi = 2.0 * PI * u2;
+    return vec3(sinTheta*cos(phi), sinTheta*sin(phi), cosTheta);
 }
 
 void main() {
@@ -122,44 +157,37 @@ void main() {
         color = ambient + specular;
         */
 
+        // Solve the rendering equation
+        vec3 V = normalize(camera.position - info.p); 
         vec3 N = normalize(info.normal);
-        vec3 V = normalize(-info.p);
 
-        vec3 albedo = texture(albedoMap, info.uv).rgb;
-        float metallic = texture(metallicMap, info.uv).r;
-        float roughness = texture(roughnessMap, info.uv).r;
-        
-        // Fresnel
-        vec3 F0 = vec3(0.04); 
-        F0 = mix(F0, albedo, metallic);
-
-        // Rendering equation (with single point-light)
-        vec3 Lo = vec3(0.0);
-        // radiance
+        // sample direct light
         vec3 L = normalize(pLight.position - info.p);
-        vec3 H = normalize(V + L);
-        vec3 radiance = pLight.emission;        
-        
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, roughness);        
-        float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
-        
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic; // nullify kD if surface is metallic
-        
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular     = numerator / denominator;  
-            
+        vec3 Li = pLight.emission;
         float NdotL = max(dot(N, L), 0.0);                
-        Lo = (kD * albedo / PI + specular) * radiance * NdotL; 
+        vec3 Lo = cookTorranceBRDF(info.uv, V, N, L) * Li * NdotL;
+        // sample cubemap
+        vec3 w = N;
+        if (dot(N, ray.dir)>=0) w *= -1;
+        vec3 tmp;
+        if (w.x > 0.1) {
+            tmp = vec3(0.0, 1.0, 0.0);
+        } else {
+            tmp = vec3(1.0, 0.0, 0.0);
+        }
+        vec3 u = normalize(cross(tmp, w));
+        vec3 v = cross(w, u);
 
-        // (improvised) ambient term
-        vec3 ambientLight = texture(cubemap, info.normal).rgb;
-        vec3 ambient = ambientLight * albedo;
-        color = ambient + Lo;
+        int numSamples = 0;
+        for (int i = 0; i < 100; i++) {
+            L = cosineWeightedSampleOnHemisphere(randomFloat(), randomFloat());
+            L = normalize(vec3(L.x * u + L.y * v + L.z * w));
+            vec3 Li = texture(cubemap, L).rgb;                
+            vec3 radiance = cookTorranceBRDF(info.uv, V, N, L) * Li * PI;
+            Lo = (Lo*numSamples + radiance)/(numSamples+1);
+            numSamples++;
+        }
+        color = Lo;
     } else {
         color = texture(cubemap, ray.dir).rgb;
     }

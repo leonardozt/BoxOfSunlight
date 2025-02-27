@@ -13,17 +13,17 @@ namespace BOSL
     {
         std::vector<std::string> faces =
         {
-            "right.jpg",
-            "left.jpg",
-            "top.jpg",
-            "bottom.jpg",
-            "front.jpg",
-            "back.jpg"
+            "px.hdr",
+            "nx.hdr",
+            "py.hdr",
+            "ny.hdr",
+            "pz.hdr",
+            "nz.hdr"
         };
 
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            faces[i] = config::imagesDir + "cubemap\\" + faces[i];
+            faces[i] = config::imagesDir + "Standard-Cube-Map-2\\" + faces[i];
         }
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureObj);
@@ -31,13 +31,13 @@ namespace BOSL
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+            float* data = stbi_loadf(faces[i].c_str(), &width, &height, &nrChannels, 0);
             if (!data)
             {
                 throw BoxOfSunlightError("Cubemap tex failed to load at path: " + faces[i]);
             }
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
             stbi_image_free(data);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
