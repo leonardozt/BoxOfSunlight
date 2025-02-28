@@ -5,6 +5,7 @@ layout(local_size_x = 1, local_size_y = 1) in;
 #include common\input_output.glsl
 #include common\hit.glsl
 
+/*
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a      = roughness*roughness;
@@ -39,12 +40,14 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 	
     return ggx1 * ggx2;
 }
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+*/
+/*
+vec3 schlickFresnel(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
-
+*/
+/*
 vec3 cookTorranceBRDF(vec2 uv, vec3 V, vec3 N, vec3 L)
 {
         vec3 albedo = texture(albedoMap, uv).rgb;
@@ -61,7 +64,7 @@ vec3 cookTorranceBRDF(vec2 uv, vec3 V, vec3 N, vec3 L)
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        vec3 F    = schlickFresnel(max(dot(H, V), 0.0), F0);       
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -73,6 +76,7 @@ vec3 cookTorranceBRDF(vec2 uv, vec3 V, vec3 N, vec3 L)
         
         return kD * albedo / PI + specular;
 }
+*/
 
 // Stores the new, averaged color for the pixel at coordinates 'pixelCoords'
 void storeColor(vec3 newColor, ivec2 pixelCoords) {
@@ -90,6 +94,8 @@ vec3 cosineWeightedSampleOnHemisphere(float u1, float u2) {
     float phi = 2.0 * PI * u2;
     return vec3(sinTheta*cos(phi), sinTheta*sin(phi), cosTheta);
 }
+
+#include common\disney.glsl
 
 void main() {
     // calculate image resolution
@@ -159,14 +165,41 @@ void main() {
 
         // Solve the rendering equation
         vec3 V = normalize(camera.position - info.p); 
-        vec3 N = normalize(info.normal);
+        
+        vec3 geometricNormal = info.normal;
+        vec3 tangent = info.tangent;
+        vec3 bitangent = normalize(cross(geometricNormal, tangent));
+        mat3 TBN = mat3(tangent, bitangent, geometricNormal);
+        vec3 texNormal = texture(normalMap, info.uv).rgb;
+        vec3 N = normalize(TBN * texNormal);
+
+        // (test)
+        DisneyMaterial mat;
+        //mat.baseColor = texture(albedoMap, info.uv).rgb;
+        mat.baseColor = vec3(1.0f);
+        mat.subsurface = 0;
+        //mat.metallic = texture(metallicMap, info.uv).r;
+        mat.metallic = 0.99;
+        mat.specular = 1;
+        mat.specularTint = 0;
+        mat.roughness = texture(roughnessMap, info.uv).r;
+        mat.anisotropic = 0.8;
+        mat.sheen = 0;
+        mat.sheenTint = 0.5;
+        mat.clearCoat = 0;
+        mat.clearCoatGloss = 1;
 
         // sample direct light
         vec3 L = normalize(pLight.position - info.p);
         vec3 Li = pLight.emission;
-        float NdotL = max(dot(N, L), 0.0);                
-        vec3 Lo = cookTorranceBRDF(info.uv, V, N, L) * Li * NdotL;
+        float NdotL = max(dot(N, L), 0.0);
+
+        // (test)
+        BRDFResults results = disneyBRDF(L, V, N, info.tangent, bitangent, mat);
+        vec3 Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
+        
         // sample cubemap
+        /*
         vec3 w = N;
         if (dot(N, ray.dir)>=0) w *= -1;
         vec3 tmp;
@@ -187,6 +220,7 @@ void main() {
             Lo = (Lo*numSamples + radiance)/(numSamples+1);
             numSamples++;
         }
+        */
         color = Lo;
     } else {
         color = texture(cubemap, ray.dir).rgb;

@@ -12,7 +12,7 @@ void main()
 	
 	// Convert from HDR to LDR (Reinhard tone mapping)
 	//vec3 mapped = texColor / (texColor + vec3(1.0));
-    float exposure = 1.0;
+    float exposure = 3.0;
     vec3 mapped = vec3(1.0) - exp(-texColor * exposure);
 	// gamma correction
 	float gamma = 2.2;

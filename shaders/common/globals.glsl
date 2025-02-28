@@ -59,6 +59,9 @@ struct HitInfo {
     vec3 normal;
     // texture coordinates
     vec2 uv;
+    
+    // (test)
+    vec3 tangent;
 };
 
 uint rngState;

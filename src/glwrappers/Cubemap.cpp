@@ -23,7 +23,7 @@ namespace BOSL
 
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            faces[i] = config::imagesDir + "Standard-Cube-Map-2\\" + faces[i];
+            faces[i] = config::imagesDir + "Standard-Cube-Map\\" + faces[i];
         }
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureObj);

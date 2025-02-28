@@ -106,11 +106,15 @@ HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
     vec3 bitangent = cross(sphereNormal, tangent);
     mat3 TBN = mat3(tangent, bitangent, sphereNormal);
 
-    vec3 normal = texture(normalMap, rec.uv).rgb;
-    normal = normal * 2.0 - 1.0;   
-    normal = normalize(normal);
+    // (test)
+    rec.tangent = tangent;
 
-    rec.normal = normalize(TBN * normal);  
+    //vec3 normal = texture(normalMap, rec.uv).rgb;
+    //normal = normal * 2.0 - 1.0;   
+    //normal = normalize(normal);
+
+    //rec.normal = normalize(TBN * normal);  
+    rec.normal = normalize(rec.p - sphereCenter);
 
     rec.hit = true;
     return rec;

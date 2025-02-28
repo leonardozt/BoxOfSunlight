@@ -108,9 +108,9 @@ namespace BOSL
         for (unsigned int i = 0; i < config::windowWidth*config::windowHeight; i++) {
                 randomSeeds.push_back(rand());
         }
-        GLuint rngState;
-        glGenBuffers(1, &rngState);
-        passDataToSSBO(rngState, rngStateBufIdx,
+        GLuint rngStateBuf;
+        glGenBuffers(1, &rngStateBuf);
+        passDataToSSBO(rngStateBuf, rngStateBufIdx,
             randomSeeds.size() * sizeof(GLuint), randomSeeds.data(), GL_DYNAMIC_DRAW);
 
         initCameraUniforms();
@@ -141,7 +141,7 @@ namespace BOSL
         // cubemap
         compShader.setUniformInt(compShaderTexNames.at(cubemapImgUnit), cubemapImgUnit);
         glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
-        scene.cubemap.load();
+        //scene.cubemap.load();
 
         // albedo map
         initCompShader2DTex(scene.albedoMap, albedoMapImgUnit);
