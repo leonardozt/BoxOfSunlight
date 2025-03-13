@@ -42,7 +42,6 @@ int main()
         scene.metallicMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_metal_4k.jpg");
         scene.roughnessMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_rough_4k.jpg");
 
-
         // Point light (for testing)
         BOSL::PointLight pLight;
         pLight.position = glm::vec3(5.0f, 3.0f, 8.0f);
