@@ -29,6 +29,7 @@ int main()
     
         BOSL::initGL();
 
+
         // Set up scene
         
         //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
