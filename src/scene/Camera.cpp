@@ -12,7 +12,6 @@ namespace BOSL
 {
 	Camera::Camera()
 		: Camera(
-			glm::vec3(0.0f,1.0f,0.0f),
 			glm::vec3(0.0f,0.0f,1.0f),
 			glm::vec3(0.0f,0.0f,0.0f),
 			30.0f,
@@ -22,10 +21,9 @@ namespace BOSL
 		// (left intentionally empty)
 	}
 
-	Camera::Camera(glm::vec3 worldUp, glm::vec3 position, glm::vec3 lookAt,
+	Camera::Camera(glm::vec3 position, glm::vec3 lookAt,
 		float vfov, float focalLength)
-		: worldUp(worldUp)
-		, position(position)
+		: position(position)
 		, lookAt(lookAt)
 		, vfov(vfov)
 		, focalLength(focalLength)
@@ -58,8 +56,8 @@ namespace BOSL
 	void Camera::calculateDirVecs()
 	{
 		forward = normalize(lookAt - position);
-		up = worldUp;
-		right = normalize(cross(forward, up));
+		right = normalize(cross(forward, glm::vec3(0.0f,1.0f,0.0f)));
+		up = normalize(cross(right,forward));
 	}
 
 	Viewport Camera::calculateViewport() const

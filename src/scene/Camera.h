@@ -22,7 +22,7 @@ namespace BOSL
 	public:
 		Camera();
 
-		Camera(glm::vec3 worldUp, glm::vec3 position, glm::vec3 lookAt,
+		Camera(glm::vec3 position, glm::vec3 lookAt,
 			float vfov, float focalLength);
 		
 		glm::vec3 getPosition() const;
@@ -36,8 +36,6 @@ namespace BOSL
 		Viewport calculateViewport() const;
 
 	private:
-		glm::vec3 worldUp;
-
 		glm::vec3 position;
 		glm::vec3 lookAt;
 

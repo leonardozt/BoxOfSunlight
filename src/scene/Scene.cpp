@@ -34,7 +34,6 @@ namespace BOSL
 	}
 
 	// Static constants
-	const glm::vec3 Scene::camAtStart::worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	const glm::vec3 Scene::camAtStart::position = glm::vec3(0.0f, 0.0f, 5.0f);
 	const glm::vec3 Scene::camAtStart::lookAt = glm::vec3(0.0f, 0.0f, 0.0f);
 	const float Scene::camAtStart::focalLength = 1.0f;
@@ -42,7 +41,6 @@ namespace BOSL
 
 	Scene::Scene()
 		: camera(
-			camAtStart::worldUp,
 			camAtStart::position,
 			camAtStart::lookAt,
 			camAtStart::vfov,

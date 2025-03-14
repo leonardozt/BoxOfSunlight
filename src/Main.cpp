@@ -36,7 +36,7 @@ int main()
         //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
         
         BOSL::Scene scene = createSpheres();
-        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 20.0f));
+        scene.camera.setPosition(glm::vec3(10.0f, 10.0f, 20.0f));
         
         scene.albedoMap.setImgFilePath(BOSL::config::imagesDir+"textures\\rock_face_03_diff_4k.jpg");
         scene.normalMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_nor_gl_4k.jpg");

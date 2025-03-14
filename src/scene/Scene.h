@@ -61,7 +61,6 @@ namespace BOSL
 		// Data used for initialization of camera
 		struct camAtStart
 		{
-			static const glm::vec3 worldUp;
 			static const glm::vec3 position;
 			static const glm::vec3 lookAt;
 			static const float focalLength;
