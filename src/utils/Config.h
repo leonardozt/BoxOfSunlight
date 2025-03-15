@@ -17,7 +17,7 @@ namespace BOSL
 		
 		// Number of screen chunks used for rendering,
 		// on X and Y axes respectively
-		constexpr glm::uvec2 numChunks(1);
+		constexpr glm::uvec2 numChunks(2);
 
 		static_assert(
 			((numChunks.x > 0 && numChunks.y > 0)

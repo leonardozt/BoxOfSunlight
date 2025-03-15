@@ -2,22 +2,15 @@
 
 namespace BOSL
 {
-	glm::mat3 triangleTBN(Vertex v0, Vertex v1, Vertex v2) {
-		glm::vec3 p0 = v0.pos;
-		glm::vec3 p1 = v1.pos;
-		glm::vec3 p2 = v2.pos;
-
-		glm::vec2 uv0 = v0.uv;
-		glm::vec2 uv1 = v1.uv;
-		glm::vec2 uv2 = v2.uv;
-
+	void calculateTBN(Triangle& t)
+	{
 		// Edges of the triangle : position delta
-		glm::vec3 edge1 = p1 - p0;
-		glm::vec3 edge2 = p2 - p0;
+		glm::vec3 edge1 = t.v1.pos - t.v0.pos;
+		glm::vec3 edge2 = t.v2.pos - t.v0.pos;
 
 		// UV delta
-		glm::vec2 deltaUV1 = uv1 - uv0;
-		glm::vec2 deltaUV2 = uv2 - uv0;
+		glm::vec2 deltaUV1 = t.v1.uv - t.v0.uv;
+		glm::vec2 deltaUV2 = t.v2.uv - t.v0.uv;
 
 		// Fractional part of equation (determinant)
 		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
@@ -26,11 +19,9 @@ namespace BOSL
 		glm::vec3 bitangent = f * (edge2 * deltaUV1.x - edge1 * deltaUV2.x);
 		glm::vec3 normal = glm::cross(edge1, edge2);
 
-		tangent = glm::normalize(tangent);
-		bitangent = glm::normalize(bitangent);
-		normal = glm::normalize(normal);
-
-		return glm::mat3(tangent, bitangent, normal);
+		t.T = glm::vec4(glm::normalize(tangent), 0.0f);
+		t.B = glm::vec4(glm::normalize(bitangent), 0.0f);
+		t.N = glm::vec4(glm::normalize(normal), 0.0f);
 	}
 
 	// Static constants

@@ -1,4 +1,5 @@
 // Checks for ray-triangle hit using the Muller-Trumbore method
+/*
 HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
 {
     HitInfo rec;
@@ -52,15 +53,83 @@ HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
     // (different meaning from barycentric coordinates)
     rec.uv = (1-u-v) * v0.uv + u * v1.uv + v * v2.uv;
 
-    vec3 normal = texture(normalMap, rec.uv).rgb;
-    normal = normal * 2.0 - 1.0;   
-    normal = normalize(mat3(triangle.TBN) * normal);
-    rec.normal = normal;  
+    rec.T = vec3(triangle.T);
+    rec.B = vec3(triangle.B);
+    rec.N = vec3(triangle.N);
 
     rec.hit = true;
     return rec;
 }
+*/
 
+HitInfo triangleHit(Ray r, Triangle triangle, Interval rayT)
+{
+    HitInfo info;
+
+    vec3 v0 = vec3(triangle.v0.pos);
+    vec3 v1 = vec3(triangle.v1.pos);
+    vec3 v2 = vec3(triangle.v2.pos);
+    vec2 uv0 = triangle.v0.uv;
+    vec2 uv1 = triangle.v1.uv;
+    vec2 uv2 = triangle.v2.uv;
+
+    vec3 T = vec3(triangle.T);
+    vec3 B = vec3(triangle.B);
+    vec3 N = vec3(triangle.N);
+    
+    // Ray-plane intersection
+    float den = dot(N, r.dir);
+    if (abs(den) < 1e-8) {
+        info.hit = false;
+        return info;
+    }
+
+    float d = -dot(N, v0);
+    float t = -(dot(N, r.origin) + d) / den;
+
+    if (!(rayT.min <= t && t <= rayT.max)) {
+        info.hit = false;
+        return info;
+    }
+
+    vec3 p = rayAt(r, t);
+
+    // Pineda and Barycentric coordinates
+    float area2 = length(cross(v1-v0, v2-v0));
+    vec3 C;
+
+    C = cross(v2-v1, p-v1);
+    float u = length(C)/area2;
+    float edge12 = dot(N, C);
+    
+    C = cross(v0-v2, p-v2);
+    float v = length(C)/area2;
+    float edge20 = dot(N, C);
+    
+    C = cross(v1-v0, p-v0);
+    float edge01 = dot(N, C);
+
+    if (!((edge01 >= 0 && edge12 >= 0 && edge20 >= 0)
+            || (edge01 < 0 && edge12 < 0 && edge20 < 0))) {
+        info.hit = false;
+        return info;
+    }
+
+    info.hit = true;
+    info.t = t;
+    info.p = p;
+
+    // Calculate UV coordinates (not the same as barycentric!)
+    info.uv = u*uv0 + v*uv1 + (1.0f-u-v)*uv2;
+
+    info.T = T;
+    info.B = B;
+    info.N = N;
+
+    return info;
+}
+
+/*
 HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
     HitInfo rec;
    
@@ -119,3 +188,4 @@ HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
     rec.hit = true;
     return rec;
 }
+*/

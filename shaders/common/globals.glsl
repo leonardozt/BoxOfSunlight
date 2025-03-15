@@ -12,8 +12,10 @@ struct Triangle {
     Vertex v0;
     Vertex v1;
     Vertex v2;
-    // Tangent-Bitangent-Normal Matrix
-    mat4 TBN;
+    // Tangent, Bitangent, Normal
+    vec4 T;
+    vec4 B;
+    vec4 N;
 };
 
 struct Sphere {
@@ -56,12 +58,12 @@ struct HitInfo {
     // distance along ray
     float t;
     vec3 p;
-    vec3 normal;
     // texture coordinates
     vec2 uv;
-    
-    // (test)
-    vec3 tangent;
+    // Tangent, Bitangent, Normal
+    vec3 T;
+    vec3 B;
+    vec3 N;
 };
 
 uint rngState;

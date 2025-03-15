@@ -32,11 +32,11 @@ int main()
 
         // Set up scene
         
-        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
+        scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
         
-        BOSL::Scene scene = createSpheres();
-        scene.camera.setPosition(glm::vec3(10.0f, 10.0f, 20.0f));
+        //BOSL::Scene scene = createSpheres();
+        //scene.camera.setPosition(glm::vec3(10.0f, 10.0f, 20.0f));
         
         scene.albedoMap.setImgFilePath(BOSL::config::imagesDir+"textures\\rock_face_03_diff_4k.jpg");
         scene.normalMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_nor_gl_4k.jpg");
@@ -163,8 +163,12 @@ BOSL::Scene loadObj(std::string objPath) {
 
                 vertices[v] = BOSL::Vertex{ position, texCoords };
             }
-            glm::mat4 TBN = BOSL::triangleTBN(vertices[0], vertices[1], vertices[2]);
-            triangles.push_back(BOSL::Triangle{ vertices[0],vertices[1],vertices[2],TBN });
+            BOSL::Triangle t;
+            t.v0 = vertices[0];
+            t.v1 = vertices[1];
+            t.v2 = vertices[2];
+            BOSL::calculateTBN(t);
+            triangles.push_back(t);
 
             index_offset += 3;
         }

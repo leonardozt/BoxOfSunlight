@@ -127,6 +127,7 @@ void main() {
         }
     }
     // Check intersections with spheres
+    /*
     for (int i = 0; i < spheres.length(); i++) {
         tempInfo = sphereHit(ray, spheres[i], rayT);
         if (tempInfo.hit) {
@@ -136,6 +137,7 @@ void main() {
             rayT.max = closestSoFar;
         }
     }
+    */
 
     vec3 color = vec3(0);
     if (hitAnything) {
@@ -165,12 +167,14 @@ void main() {
 
         // Solve the rendering equation
         vec3 V = normalize(camera.position - info.p); 
-        
-        vec3 geometricNormal = info.normal;
-        vec3 tangent = info.tangent;
-        vec3 bitangent = normalize(cross(geometricNormal, tangent));
-        mat3 TBN = mat3(tangent, bitangent, geometricNormal);
+
+        vec3 geometryNormal = info.N;
+        vec3 T = info.T;
+        vec3 B = info.B;
+
         vec3 texNormal = texture(normalMap, info.uv).rgb;
+        texNormal = normalize(texNormal * 2.0 - 1.0);   
+        mat3 TBN = mat3(T, B, geometryNormal);
         vec3 N = normalize(TBN * texNormal);
 
         // (test)
@@ -195,7 +199,7 @@ void main() {
         float NdotL = max(dot(N, L), 0.0);
 
         // (test)
-        BRDFResults results = disneyBRDF(L, V, N, info.tangent, bitangent, mat);
+        BRDFResults results = disneyBRDF(L, V, N, T, B, mat);
         vec3 Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
         
         // sample cubemap

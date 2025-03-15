@@ -25,9 +25,13 @@ namespace BOSL
 		Vertex v0;     // offset:  0, size: 32
 		Vertex v1;     // offset: 32, size: 32
 		Vertex v2;     // offset: 64, size: 32
-		glm::mat4 TBN; // offset: 96, size: 64
+		
+		glm::vec4 T;
+		glm::vec4 B;
+		glm::vec4 N;
 	};
-	glm::mat3 triangleTBN(Vertex v0, Vertex v1, Vertex v2);
+
+	void calculateTBN(Triangle& t);
 
 	struct Sphere {
 		alignas(16) glm::vec4 center;
