@@ -32,7 +32,7 @@ int main()
 
         // Set up scene
         
-        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
+        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
         scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
         
         //BOSL::Scene scene = createSpheres();

@@ -127,7 +127,6 @@ void main() {
         }
     }
     // Check intersections with spheres
-    /*
     for (int i = 0; i < spheres.length(); i++) {
         tempInfo = sphereHit(ray, spheres[i], rayT);
         if (tempInfo.hit) {
@@ -137,7 +136,6 @@ void main() {
             rayT.max = closestSoFar;
         }
     }
-    */
 
     vec3 color = vec3(0);
     if (hitAnything) {
@@ -205,7 +203,7 @@ void main() {
         // sample cubemap
         /*
         vec3 w = N;
-        if (dot(N, ray.dir)>=0) w *= -1;
+        if (dot(N, ray.D)>=0) w *= -1;
         vec3 tmp;
         if (w.x > 0.1) {
             tmp = vec3(0.0, 1.0, 0.0);
@@ -227,7 +225,7 @@ void main() {
         */
         color = Lo;
     } else {
-        color = texture(cubemap, ray.dir).rgb;
+        color = texture(cubemap, ray.D).rgb;
     }
 
     // Calculate new random state with xorshift and save

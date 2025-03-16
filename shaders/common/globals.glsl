@@ -24,9 +24,10 @@ struct Sphere {
 };
 
 struct Ray {
-    vec3 origin;
+    // origin
+    vec3 o;
     // direction
-    vec3 dir;
+    vec3 D;
 };
 
 struct Viewport {
@@ -57,6 +58,7 @@ struct HitInfo {
     bool hit;
     // distance along ray
     float t;
+    // intersection point
     vec3 p;
     // texture coordinates
     vec2 uv;
@@ -106,7 +108,12 @@ vec2 tentFilterPixel() {
 // Returns point along the ray at distance t from its origin
 vec3 rayAt(Ray r, float t)
 {
-    return r.origin + r.dir * t;
+    return r.o + r.D * t;
+}
+
+// Returns true if the interval contains the value
+bool contains(Interval interval, float value){
+    return interval.min <= value && value <= interval.max;
 }
 
 // Returns ray passing through a random point point around
