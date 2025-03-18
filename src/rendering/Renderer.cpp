@@ -141,7 +141,7 @@ namespace BOSL
         // cubemap
         compShader.setUniformInt(compShaderTexNames.at(cubemapImgUnit), cubemapImgUnit);
         glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
-        //scene.cubemap.load();
+        scene.cubemap.load();
 
         // albedo map
         initCompShader2DTex(scene.albedoMap, albedoMapImgUnit);

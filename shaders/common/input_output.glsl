@@ -32,5 +32,5 @@ struct PointLight {
 };
 uniform PointLight pLight;
 
-// Offset of current chunk (test)
+// Offset of current screen chunk
 uniform uvec2 chunkOffset;

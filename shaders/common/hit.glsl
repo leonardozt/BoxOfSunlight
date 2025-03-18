@@ -118,3 +118,33 @@ HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
     
     return info;
 }
+
+HitInfo anyHit(Ray ray, Interval rayT)
+{        
+    HitInfo info;
+    info.hit = false;
+
+    HitInfo tempInfo;    
+    float closestSoFar = rayT.max;
+    
+    // check intersections with spheres
+    for (int i = 0; i < spheres.length(); i++) {
+        tempInfo = sphereHit(ray, spheres[i], rayT);
+        if (tempInfo.hit) {
+            closestSoFar = tempInfo.t;
+            info = tempInfo;
+            rayT.max = closestSoFar;
+        }
+    }
+
+    // check intersections with triangles
+    for (int i = 0; i < triangles.length(); i++) {
+        tempInfo = triangleHit(ray, triangles[i], rayT);
+        if (tempInfo.hit) {
+            closestSoFar = tempInfo.t;
+            info = tempInfo;
+            rayT.max = closestSoFar;
+        }
+    }
+    return info;
+}
