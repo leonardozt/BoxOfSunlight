@@ -14,11 +14,11 @@ namespace BOSL
 		: Camera(
 			glm::vec3(0.0f,0.0f,1.0f),
 			glm::vec3(0.0f,0.0f,0.0f),
-			30.0f,
+			60.0f,
 			1.0f
 			)
 	{
-		// (left intentionally empty)
+		// Left intentionally empty
 	}
 
 	Camera::Camera(glm::vec3 position, glm::vec3 lookAt,
@@ -53,6 +53,11 @@ namespace BOSL
 		calculateDirVecs();
 	}
 
+	void Camera::setVFOV(float vfov)
+	{
+		this->vfov = vfov;
+	}
+
 	void Camera::calculateDirVecs()
 	{
 		forward = normalize(lookAt - position);
@@ -66,14 +71,14 @@ namespace BOSL
 		float theta = radians(vfov);
 		float h = tan(theta/2) * focalLength;
 		float viewportHeight = 2 * h;
-		float aspectRatio = float(config::windowWidth) / float(config::windowHeight);
+		float aspectRatio = float(config::imageWidth) / float(config::imageHeight);
 		float viewportWidth = viewportHeight * aspectRatio;
 		// axes of viewport
 		vec3 horiz = viewportWidth * right;
 		vec3 vert = viewportHeight * (-up);
 		// distances between pixels
-		vec3 deltaHoriz = horiz / float(config::windowWidth);
-		vec3 deltaVert = vert / float(config::windowHeight);
+		vec3 deltaHoriz = horiz / float(config::imageWidth);
+		vec3 deltaVert = vert / float(config::imageHeight);
 		vec3 viewportUpperLeft = position
 			+ forward * focalLength
 			- horiz * 0.5f

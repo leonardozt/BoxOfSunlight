@@ -27,23 +27,51 @@ namespace BOSL
 		N = glm::vec4(glm::normalize(normal), 0.0f);
 	}
 
+	PointLight::PointLight()
+		: position(glm::vec3(3.0f))
+		, emission(glm::vec3(3.0f))
+	{
+		// Left intentionally empty
+	}
+
+	Material::Material()
+		: baseColor(glm::vec3(1.0f))
+		, subsurface(0.0f)
+		, metallic(0.0f)
+		, specular(0.0f)
+		, specularTint(0.0f)
+		, roughness(1.0f)
+		, anisotropic(0.0f)
+		, sheen(0.0f)
+		, sheenTint(0.0f)
+		, clearCoat(0.0f)
+		, clearCoatGloss(1.0f)
+	{
+		// Left intentionally empty
+	}
+
 	// Static constants
-	const glm::vec3 Scene::camAtStart::position = glm::vec3(0.0f, 0.0f, 5.0f);
-	const glm::vec3 Scene::camAtStart::lookAt = glm::vec3(0.0f, 0.0f, 0.0f);
-	const float Scene::camAtStart::focalLength = 1.0f;
-	const float Scene::camAtStart::vfov = 30.0f;
+	const glm::vec3 Scene::CamAtStart::position = glm::vec3(0.0f, 0.0f, 5.0f);
+	const glm::vec3 Scene::CamAtStart::lookAt = glm::vec3(0.0f, 0.0f, 0.0f);
+	const float Scene::CamAtStart::focalLength = 1.0f;
+	const float Scene::CamAtStart::vfov = 60.0f;
 
 	Scene::Scene()
 		: camera(
-			camAtStart::position,
-			camAtStart::lookAt,
-			camAtStart::vfov,
-			camAtStart::focalLength)
-		, albedoMap(config::imagesDir + "learnopengl\\albedo.png", GL_SRGB)
-		, normalMap(config::imagesDir + "learnopengl\\normal.png", GL_RGB)
-		, metallicMap(config::imagesDir + "learnopengl\\metallic.png", GL_RED)
-		, roughnessMap(config::imagesDir + "learnopengl\\roughness.png", GL_RED)
-		, pLight{ glm::vec3(0.0f) , glm::vec3(0.0f) }
+			CamAtStart::position,
+			CamAtStart::lookAt,
+			CamAtStart::vfov,
+			CamAtStart::focalLength)
+		, albedoMap(config::texturesDir + "\\rock\\rock_face_03_diff_4k.jpg", GL_SRGB)
+		, normalMap(config::texturesDir + "\\rock\\rock_face_03_nor_gl_4k.jpg", GL_RGB)
+		, metallicMap(config::texturesDir + "\\rock\\rock_face_03_metal_4k.jpg", GL_RED)
+		, roughnessMap(config::texturesDir + "\\rock\\rock_face_03_rough_4k.jpg", GL_RED)
+		, useCubemap(false)
+		, useAlbedoMap(true)
+		, useNormalMap(true)
+		, useMetallicMap(true)
+		, useRoughnessMap(true)
+		, hemisphereSamples(10)
 	{
 		// Left intentionally empty
 	}

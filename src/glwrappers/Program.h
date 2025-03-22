@@ -33,6 +33,7 @@ namespace BOSL {
 		void setUniformInt(const std::string& name, int value) const;
 		void setUniformUnsignedInt(const std::string& name, unsigned int value) const;
 		void setUniformMat4(const std::string& name, glm::mat4 matrix) const;
+		void setUniformBool(const std::string& name, bool value) const;
 	private:
 		bool linked;
 		bool isBeingUsed;

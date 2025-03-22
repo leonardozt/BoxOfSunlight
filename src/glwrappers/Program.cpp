@@ -121,6 +121,12 @@ namespace BOSL {
         glUniformMatrix4fv(glGetUniformLocation(object, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
     }
 
+    void Program::setUniformBool(const std::string& name, bool value) const
+    {
+        checkLinkedUsed("setUniformBool");
+        glUniform1i(glGetUniformLocation(object, name.c_str()), value);
+    }
+
     Program::~Program()
     {
         release();

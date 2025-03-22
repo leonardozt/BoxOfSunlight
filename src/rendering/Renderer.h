@@ -101,6 +101,8 @@ namespace BOSL
 		void initQuadShader();
 
 		void initCameraUniforms();
+		void initMaterialUniforms();
+		void initCompShaderUniformBools();
 
 		// Prepares all the textures needed by the Compute Shader
 		void initAllCompShaderTextures();

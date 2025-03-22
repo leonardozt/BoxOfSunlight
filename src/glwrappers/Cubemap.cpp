@@ -23,7 +23,7 @@ namespace BOSL
 
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            faces[i] = config::imagesDir + "Standard-Cube-Map\\" + faces[i];
+            faces[i] = config::cubemapsDir + "\\Cubemap-1\\" + faces[i];
         }
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureObj);
@@ -34,7 +34,7 @@ namespace BOSL
             float* data = stbi_loadf(faces[i].c_str(), &width, &height, &nrChannels, 0);
             if (!data)
             {
-                throw BoxOfSunlightError("Cubemap tex failed to load at path: " + faces[i]);
+                throw BoxOfSunlightError("Cubemap face failed to load at path: " + faces[i]);
             }
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);

@@ -22,31 +22,24 @@ int main()
     try {    
         BOSL::initGLFW();
         BOSL::Window window(
-            BOSL::config::windowWidth,
-            BOSL::config::windowHeight,
-            BOSL::config::windowTitle
+            BOSL::config::imageWidth,
+            BOSL::config::imageHeight,
+            BOSL::config::imageTitle
         );
     
         BOSL::initGL();
 
         // Set up scene
         
-        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "suzanne.obj");
-        scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
-        
-        //BOSL::Scene scene = createSpheres();
-        //scene.camera.setPosition(glm::vec3(10.0f, 0.0f, 20.0f));
-        
-        scene.albedoMap.setImgFilePath(BOSL::config::imagesDir+"textures\\rock_face_03_diff_4k.jpg");
-        scene.normalMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_nor_gl_4k.jpg");
-        scene.metallicMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_metal_4k.jpg");
-        scene.roughnessMap.setImgFilePath(BOSL::config::imagesDir + "textures\\rock_face_03_rough_4k.jpg");
+        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
+        //scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
+        //scene.useCubemap = true;
 
-        // Point light (for testing)
-        BOSL::PointLight pLight;
-        pLight.position = glm::vec3(5.0f, 3.0f, 8.0f);
-        pLight.emission = glm::vec3(1.0f);
-        scene.pLight = pLight;
+        BOSL::Scene scene = createSpheres();
+        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+        scene.useCubemap = true;
+        scene.hemisphereSamples = 100;
+
 
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
@@ -55,7 +48,7 @@ int main()
         // timing 
         double deltaTime = 0.0f; // time between current frame and last frame
         double lastFrame = 0.0f; // time of last frame
-        int fCounter = 0;
+        unsigned int fCounter = 0;
         // ------------------------------------------------------------------
 
         while (!window.shouldClose())
@@ -70,15 +63,16 @@ int main()
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
             // Print only every 100 frames
-            if (fCounter > 100) {
+            if ((fCounter%100) == 0) {
                 std::cout << "FPS: " << 1 / deltaTime << std::endl;
-                fCounter = 0;
             }
-            else {
-                fCounter++;
-            }
+            fCounter++;
             // --------------------------------------------------------------
-        }        
+        } 
+
+        std::cout << "\n# of frames: " << fCounter << "\n";
+        std::cout << "time: " << (int)lastFrame / 60 << "m "
+            << (int)lastFrame % 60 << "s\n";
 
     } catch(BoxOfSunlightError& err) {
         std::cerr << "BoxOfSunlightError - " << err.what() << std::endl;

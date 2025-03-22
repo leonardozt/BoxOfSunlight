@@ -48,7 +48,7 @@ namespace BOSL {
                 // lineBuffer now contains name of the included shader source file
 
                 // Write full path in lineBuffer
-                lineBuffer.insert(0, config::shadersDir);
+                lineBuffer.insert(0, config::shadersDir + "\\");
 
                 fullSourceCode += loadShader(lineBuffer);
                 

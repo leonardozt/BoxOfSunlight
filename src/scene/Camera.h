@@ -30,6 +30,8 @@ namespace BOSL
 
 		glm::vec3 getLookAt() const;
 		void setLookAt(glm::vec3 lookAt);
+
+		void setVFOV(float vfov);
 		
 		// Returns Viewport (rectangle in 3D space)
 		// associated with camera

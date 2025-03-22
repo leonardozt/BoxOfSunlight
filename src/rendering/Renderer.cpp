@@ -13,9 +13,10 @@ namespace BOSL
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(debug::debugMessageCallback, 0);
         // Set Viewport
-        glViewport(0, 0, config::windowWidth, config::windowHeight);
+        glViewport(0, 0, config::imageWidth, config::imageHeight);
+        
         // Print limitations for Compute Shaders
-        debug::printComputeLimits();
+        if (config::debugMode) { debug::printComputeLimits(); }
     }
 
     const std::array<std::string, Renderer::NUM_COMP_TEX_IMG_UNITS>
@@ -56,8 +57,8 @@ namespace BOSL
         // Render chunks one at a time
         compShader.use();
         constexpr glm::uvec2 numChunks = config::numChunks;
-        constexpr unsigned int chunkWidth = config::windowWidth / numChunks.x;
-        constexpr unsigned int chunkHeight = config::windowHeight / numChunks.y;
+        constexpr unsigned int chunkWidth = config::imageWidth / numChunks.x;
+        constexpr unsigned int chunkHeight = config::imageHeight / numChunks.y;
         for (unsigned int j = 0; j < numChunks.y; j++) {
             for (unsigned int i = 0; i < numChunks.x; i++) {
                 // set uniforms
@@ -93,19 +94,27 @@ namespace BOSL
     void Renderer::initCompShader()
     {
         std::vector<Shader> rtShaders;
-        Shader computeShader(config::shadersDir + "raytrace.glsl", GL_COMPUTE_SHADER);
+        Shader computeShader(config::shadersDir + "\\raytrace.glsl", GL_COMPUTE_SHADER);
         rtShaders.push_back(std::move(computeShader));
         compShader.link(rtShaders);
 
-        // point light (for testing)
+        initCompShaderUniformBools();
+        
+        // Lighting
         compShader.use();
-        compShader.setUniformVec3("pLight.position", scene.pLight.position);
-        compShader.setUniformVec3("pLight.emission", scene.pLight.emission);
+        if (!scene.useCubemap) {
+            // point light
+            compShader.setUniformVec3("pLight.position", scene.pLight.position);
+            compShader.setUniformVec3("pLight.emission", scene.pLight.emission);
+        } else {
+            // number of hemisphere samples, used in the case of IBL with cubemap
+            compShader.setUniformUnsignedInt("hemisphereSamples", scene.hemisphereSamples);
+        }
         compShader.stopUsing();
 
         // random numbers (test)
         std::vector<unsigned int> randomSeeds;
-        for (unsigned int i = 0; i < config::windowWidth*config::windowHeight; i++) {
+        for (unsigned int i = 0; i < config::imageWidth*config::imageHeight; i++) {
                 randomSeeds.push_back(rand());
         }
         GLuint rngStateBuf;
@@ -114,6 +123,7 @@ namespace BOSL
             randomSeeds.size() * sizeof(GLuint), randomSeeds.data(), GL_DYNAMIC_DRAW);
 
         initCameraUniforms();
+        initMaterialUniforms();
         initAllCompShaderTextures();
         
         // Pass triangle data
@@ -127,8 +137,8 @@ namespace BOSL
     void Renderer::initQuadShader()
     {
         std::vector<Shader> outputShaders;
-        Shader outputVS(config::shadersDir + "quad.vert", GL_VERTEX_SHADER);
-        Shader outputFS(config::shadersDir + "quad.frag", GL_FRAGMENT_SHADER);
+        Shader outputVS(config::shadersDir + "\\quad.vert", GL_VERTEX_SHADER);
+        Shader outputFS(config::shadersDir + "\\quad.frag", GL_FRAGMENT_SHADER);
         outputShaders.push_back(std::move(outputVS));
         outputShaders.push_back(std::move(outputFS));
         quadShader.link(outputShaders);
@@ -137,12 +147,13 @@ namespace BOSL
     void Renderer::initAllCompShaderTextures()
     {
         compShader.use();
-
         // cubemap
-        compShader.setUniformInt(compShaderTexNames.at(cubemapImgUnit), cubemapImgUnit);
-        glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
-        //scene.cubemap.load();
-
+        if (scene.useCubemap) {
+            compShader.setUniformInt(compShaderTexNames.at(cubemapImgUnit),
+                cubemapImgUnit);
+            glActiveTexture(GL_TEXTURE0 + cubemapImgUnit);
+            scene.cubemap.load();
+        }
         // albedo map
         initCompShader2DTex(scene.albedoMap, albedoMapImgUnit);
         // normal map
@@ -151,7 +162,6 @@ namespace BOSL
         initCompShader2DTex(scene.metallicMap, metallicMapImgUnit);
         // roughness map
         initCompShader2DTex(scene.roughnessMap, roughnessMapImgUnit);
-
         compShader.stopUsing();
     }
 
@@ -183,7 +193,7 @@ namespace BOSL
         glActiveTexture(GL_TEXTURE0 + quadTexImgUnit);
         glGenTextures(1, &quadTexObj);
         glBindTexture(GL_TEXTURE_2D, quadTexObj);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::windowWidth, config::windowHeight,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::imageWidth, config::imageHeight,
             0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -200,8 +210,8 @@ namespace BOSL
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCount[0]);
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCount[1]);
 
-        if (workGroupCount[0] < config::windowWidth ||
-            workGroupCount[1] < config::windowHeight) {
+        if (workGroupCount[0] < config::imageWidth ||
+            workGroupCount[1] < config::imageHeight) {
             return false;
         }
 
@@ -218,6 +228,34 @@ namespace BOSL
         compShader.setUniformVec3("camera.viewport.pixel00", viewport.pixel00);
         compShader.setUniformVec3("camera.viewport.deltaHoriz", viewport.deltaHoriz);
         compShader.setUniformVec3("camera.viewport.deltaVert", viewport.deltaVert);
+        compShader.stopUsing();
+    }
+
+    void Renderer::initMaterialUniforms()
+    {
+        compShader.use();
+        Material material = scene.material;
+        compShader.setUniformVec3("material.baseColor", material.baseColor);
+        compShader.setUniformFloat("material.subsurface", material.subsurface);
+        compShader.setUniformFloat("material.metallic", material.metallic);
+        compShader.setUniformFloat("material.specularTint", material.specularTint);
+        compShader.setUniformFloat("material.roughness", material.roughness);
+        compShader.setUniformFloat("material.anisotropic", material.anisotropic);
+        compShader.setUniformFloat("material.sheen", material.sheen);
+        compShader.setUniformFloat("material.sheenTint", material.sheenTint);
+        compShader.setUniformFloat("material.clearCoat", material.clearCoat);
+        compShader.setUniformFloat("material.clearCoatGloss", material.clearCoatGloss);
+        compShader.stopUsing();
+    }
+
+    void Renderer::initCompShaderUniformBools()
+    {
+        compShader.use();
+        compShader.setUniformBool("useCubemap", scene.useCubemap);
+        compShader.setUniformBool("useAlbedoMap", scene.useAlbedoMap);
+        compShader.setUniformBool("useNormalMap", scene.useNormalMap);
+        compShader.setUniformBool("useMetallicMap", scene.useMetallicMap);
+        compShader.setUniformBool("useRoughnessMap", scene.useRoughnessMap);
         compShader.stopUsing();
     }
 

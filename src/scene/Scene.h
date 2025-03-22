@@ -12,6 +12,8 @@ namespace BOSL
 	{
 		glm::vec3 position;
 		glm::vec3 emission;
+
+		PointLight();
 	};
 
 	struct Vertex {
@@ -37,6 +39,23 @@ namespace BOSL
 		float radius;
 	};
 
+	struct Material
+	{
+		glm::vec3 baseColor;
+		float subsurface;
+		float metallic;
+		float specular;
+		float specularTint;
+		float roughness;
+		float anisotropic;
+		float sheen;
+		float sheenTint;
+		float clearCoat;
+		float clearCoatGloss;
+
+		Material();
+	};
+
 	// Objects of this class are used to store descriptions
 	// of scenes to be rendered.
 	// The OpenGL context needs to be initialized before Scene object creation.
@@ -52,16 +71,26 @@ namespace BOSL
 		std::vector<Triangle> triangles;
 		std::vector<Sphere> spheres;
 
-		Texture normalMap;
+		Material material;
+
 		Texture albedoMap;
+		Texture normalMap;
 		Texture metallicMap;
 		Texture roughnessMap;
 
 		PointLight pLight;
 
+		bool useCubemap;
+		bool useAlbedoMap;
+		bool useNormalMap;
+		bool useMetallicMap;
+		bool useRoughnessMap;
+
+		unsigned int hemisphereSamples;
+
 	private:
 		// Data used for initialization of camera
-		struct camAtStart
+		struct CamAtStart
 		{
 			static const glm::vec3 position;
 			static const glm::vec3 lookAt;
