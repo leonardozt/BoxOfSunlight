@@ -6,6 +6,16 @@ layout(local_size_x = 1, local_size_y = 1) in;
 #include common\hit.glsl
 #include common\disney.glsl
 
+// Stores the new, averaged color for the pixel at coordinates 'pixelCoords'
+void storeColor(vec3 newColor, ivec2 pixelCoords) {
+    // calculate average color
+    vec3 prevColor = imageLoad(srcImage, pixelCoords).rgb;
+    vec3 sum = prevColor * frameNumber;
+    vec3 avgColor = (sum + newColor) / (frameNumber + 1);
+    // store output color
+    imageStore(dstImage, pixelCoords, vec4(avgColor, 1.0));
+}
+
 void main() {
     // calculate image resolution
     ivec2 imgRes = imageSize(dstImage);

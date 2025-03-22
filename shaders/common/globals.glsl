@@ -139,13 +139,3 @@ vec3 uniformSampleHemisphere(float u1, float u2) {
     float phi = 2.0f * PI * u2;
     return vec3(sinTheta*cos(phi), sinTheta*sin(phi), cosTheta);
 }
-
-// Stores the new, averaged color for the pixel at coordinates 'pixelCoords'
-void storeColor(vec3 newColor, ivec2 pixelCoords) {
-    // calculate average color
-    vec3 prevColor = imageLoad(srcImage, pixelCoords).rgb;
-    vec3 sum = prevColor * frameNumber;
-    vec3 avgColor = (sum + newColor) / (frameNumber + 1);
-    // store output color
-    imageStore(dstImage, pixelCoords, vec4(avgColor, 1.0));
-}

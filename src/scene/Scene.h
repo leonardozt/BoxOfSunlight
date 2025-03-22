@@ -8,7 +8,6 @@
 
 namespace BOSL
 {
-	// for testing
 	struct PointLight
 	{
 		glm::vec3 position;
@@ -29,9 +28,9 @@ namespace BOSL
 		glm::vec4 T;
 		glm::vec4 B;
 		glm::vec4 N;
-	};
 
-	void calculateTBN(Triangle& t);
+		Triangle(Vertex v0, Vertex v1, Vertex v2);
+	};
 
 	struct Sphere {
 		alignas(16) glm::vec4 center;
@@ -58,7 +57,6 @@ namespace BOSL
 		Texture metallicMap;
 		Texture roughnessMap;
 
-		// Point light (for testing)
 		PointLight pLight;
 
 	private:
