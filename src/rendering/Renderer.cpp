@@ -13,7 +13,7 @@ namespace BOSL
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(debug::debugMessageCallback, 0);
         // Set Viewport
-        glViewport(0, 0, config::imageWidth, config::imageHeight);
+        glViewport(0, 0, config::windowWidth, config::windowHeight);
         
         // Print limitations for Compute Shaders
         if (config::debugMode) { debug::printComputeLimits(); }
@@ -57,8 +57,8 @@ namespace BOSL
         // Render chunks one at a time
         compShader.use();
         constexpr glm::uvec2 numChunks = config::numChunks;
-        constexpr unsigned int chunkWidth = config::imageWidth / numChunks.x;
-        constexpr unsigned int chunkHeight = config::imageHeight / numChunks.y;
+        constexpr unsigned int chunkWidth = config::windowWidth / numChunks.x;
+        constexpr unsigned int chunkHeight = config::windowHeight / numChunks.y;
         for (unsigned int j = 0; j < numChunks.y; j++) {
             for (unsigned int i = 0; i < numChunks.x; i++) {
                 // set uniforms
@@ -114,7 +114,7 @@ namespace BOSL
 
         // random numbers (test)
         std::vector<unsigned int> randomSeeds;
-        for (unsigned int i = 0; i < config::imageWidth*config::imageHeight; i++) {
+        for (unsigned int i = 0; i < config::windowWidth*config::windowHeight; i++) {
                 randomSeeds.push_back(rand());
         }
         GLuint rngStateBuf;
@@ -142,6 +142,10 @@ namespace BOSL
         outputShaders.push_back(std::move(outputVS));
         outputShaders.push_back(std::move(outputFS));
         quadShader.link(outputShaders);
+
+        quadShader.use();
+        quadShader.setUniformFloat("exposure", scene.exposure);
+        quadShader.stopUsing();
     }
 
     void Renderer::initAllCompShaderTextures()
@@ -193,7 +197,7 @@ namespace BOSL
         glActiveTexture(GL_TEXTURE0 + quadTexImgUnit);
         glGenTextures(1, &quadTexObj);
         glBindTexture(GL_TEXTURE_2D, quadTexObj);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::imageWidth, config::imageHeight,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config::windowWidth, config::windowHeight,
             0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -210,8 +214,8 @@ namespace BOSL
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCount[0]);
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCount[1]);
 
-        if (workGroupCount[0] < config::imageWidth ||
-            workGroupCount[1] < config::imageHeight) {
+        if (workGroupCount[0] < config::windowWidth ||
+            workGroupCount[1] < config::windowHeight) {
             return false;
         }
 

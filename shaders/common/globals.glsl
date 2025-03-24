@@ -1,5 +1,5 @@
 #define PI 3.14159265358979323
-#define MAX_UINT 4294967295.0
+#define MAX_UINT 4294967296.0
 
 struct Vertex {
     // position

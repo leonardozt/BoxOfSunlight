@@ -1,5 +1,5 @@
 #version 460
-layout(local_size_x = 1, local_size_y = 1) in;
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 #include common\globals.glsl
 #include common\input_output.glsl
@@ -38,15 +38,16 @@ void main() {
         
         vec3 V = normalize(camera.position - info.p); 
         
-        vec3 N = info.N; // geometric normal
+        vec3 geometricNormal = info.N;
         vec3 T = info.T;
         vec3 B = info.B;
+        vec3 N = geometricNormal;
 
         if (useNormalMap)
         {
             vec3 texNormal = texture(normalMap, info.uv).rgb;
             texNormal = normalize(texNormal * 2.0 - 1.0);   
-            N = normalize(mat3(T, B, N) * texNormal);   
+            N = normalize(mat3(T, B, geometricNormal) * texNormal);   
         }
         Material newMaterial = material;
         if (useAlbedoMap) { newMaterial.baseColor = texture(albedoMap, info.uv).rgb; }
@@ -64,7 +65,7 @@ void main() {
             // sample cubemap
             for (int s = 0; s < hemisphereSamples; s++)
             {    
-                vec3 L = mat3(T,B,N) * uniformSampleHemisphere(randomFloat(), randomFloat());
+                vec3 L = mat3(T,B,geometricNormal) * uniformSampleHemisphere(randomFloat(), randomFloat());
                 float NdotL = max(dot(N, L), 0.0);
                 vec3 Li = texture(cubemap, L).rgb;
                 DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial);                

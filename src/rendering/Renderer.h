@@ -75,7 +75,7 @@ namespace BOSL
 		static const std::array<std::string, NUM_COMP_IMG_UNITS> compShaderImgNames;
 
 		// Indexes of SSBOs used in Compute Shader
-		enum CompShaderSSBOIndexes {
+		enum CompShaderSSBOIndices {
 			trianglesBufIdx,
 			spheresBufIdx,
 			rngStateBufIdx

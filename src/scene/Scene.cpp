@@ -7,24 +7,21 @@ namespace BOSL
 	{
 		// Calculate T,B,N vectors
 
-		// Edges of the triangle : position delta
+		// Edges of the triangle
 		glm::vec3 edge1 = v1.pos - v0.pos;
 		glm::vec3 edge2 = v2.pos - v0.pos;
 
-		// UV delta
-		glm::vec2 deltaUV1 = v1.uv - v0.uv;
-		glm::vec2 deltaUV2 = v2.uv - v0.uv;
+		// V delta
+		float deltaV1 = v1.uv.y - v0.uv.y;
+		float deltaV2 = v2.uv.y - v0.uv.y;
 
-		// Fractional part of equation (determinant)
-		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+		glm::vec3 tangent = glm::normalize(deltaV1 * edge2 - deltaV2 * edge1);
+		glm::vec3 bitangent = glm::cross(normal, tangent);
 
-		glm::vec3 tangent = f * (edge1 * deltaUV2.y - edge2 * deltaUV1.y);
-		glm::vec3 bitangent = f * (edge2 * deltaUV1.x - edge1 * deltaUV2.x);
-		glm::vec3 normal = glm::cross(edge1, edge2);
-
-		T = glm::vec4(glm::normalize(tangent), 0.0f);
-		B = glm::vec4(glm::normalize(bitangent), 0.0f);
-		N = glm::vec4(glm::normalize(normal), 0.0f);
+		T = glm::vec4(tangent, 0.0f);
+		B = glm::vec4(bitangent, 0.0f);
+		N = glm::vec4(normal, 0.0f);
 	}
 
 	PointLight::PointLight()
@@ -72,6 +69,7 @@ namespace BOSL
 		, useMetallicMap(true)
 		, useRoughnessMap(true)
 		, hemisphereSamples(10)
+		, exposure(1.0f)
 	{
 		// Left intentionally empty
 	}

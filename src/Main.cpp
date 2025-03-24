@@ -22,24 +22,37 @@ int main()
     try {    
         BOSL::initGLFW();
         BOSL::Window window(
-            BOSL::config::imageWidth,
-            BOSL::config::imageHeight,
-            BOSL::config::imageTitle
+            BOSL::config::windowWidth,
+            BOSL::config::windowHeight,
+            BOSL::config::windowTitle
         );
     
         BOSL::initGL();
 
         // Set up scene
         
-        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "cube.obj");
+        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "\\suzanne.obj");
         //scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
-        //scene.useCubemap = true;
-
-        BOSL::Scene scene = createSpheres();
-        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
         scene.useCubemap = true;
-        scene.hemisphereSamples = 100;
 
+        //BOSL::Scene scene = createSpheres();
+        scene.camera.setPosition(glm::vec3(-2.0f, 2.0f, 3.0f));
+        scene.hemisphereSamples = 1000;
+        scene.exposure = 3.0f;
+        scene.useNormalMap = false;
+        scene.useMetallicMap = false;
+        scene.useRoughnessMap = false;
+
+        /*
+        std::string metalMapsDir = BOSL::config::texturesDir + "\\Metal048A_2K-JPG";
+        scene.albedoMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Color.jpg");
+        scene.normalMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_NormalGL.jpg");
+        scene.metallicMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Metalness.jpg");
+        scene.roughnessMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Roughness.jpg");
+        */
+
+        scene.material.specular = 1;
+        scene.material.specularTint = 1;
 
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
@@ -62,14 +75,14 @@ int main()
             double currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
-            // Print only every 100 frames
-            if ((fCounter%100) == 0) {
+            // Print only every 500 frames
+            if ((fCounter%500) == 0) {
                 std::cout << "FPS: " << 1 / deltaTime << std::endl;
             }
             fCounter++;
             // --------------------------------------------------------------
         } 
-
+    
         std::cout << "\n# of frames: " << fCounter << "\n";
         std::cout << "time: " << (int)lastFrame / 60 << "m "
             << (int)lastFrame % 60 << "s\n";
@@ -87,10 +100,10 @@ BOSL::Scene createSpheres() {
     BOSL::Scene scene;
 
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(1.8f, 2.3f, -2.0f, 1.0f), 2.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(3.8f, 3.3f, -2.0f, 1.0f), 2.0f });
 
     return scene;
 }

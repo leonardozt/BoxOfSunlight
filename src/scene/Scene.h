@@ -88,6 +88,8 @@ namespace BOSL
 
 		unsigned int hemisphereSamples;
 
+		float exposure;
+
 	private:
 		// Data used for initialization of camera
 		struct CamAtStart

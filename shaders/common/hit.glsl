@@ -100,18 +100,36 @@ HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
     info.t = root;
     info.p = rayAt(ray, info.t);
     
-    // Calculate sphere UV from spherical coordinates
     vec3 N = normalize(info.p - sphereC);
-    float theta = acos(-N.y);
-    float phi = atan(-N.z, N.x) + PI; // atan is equivalent to atan2 in C (?)
-    float u = phi / (2 * PI);
-    float v = theta / PI;
+
+    // Calculate UV coordinates
+    float theta = acos(N.y);
+    float phi;
+    if (abs(N.x) < 1e-8) {
+        if (N.z < 0) {
+            phi = PI / 2;  
+        } else if (N.z > 0) {
+            phi = -PI / 2; 
+        } else {
+            phi = 0.0; 
+        }
+    } else {
+        phi = atan(-N.z, N.x); 
+    }
+    if (phi < 0) {
+        // from [-PI, 0] to [PI, 2*PI]
+        phi += 2*PI;
+    }
+    
+    float u = 1 - (theta / PI);
+    float v = phi / (2 * PI);
     info.uv = vec2(u, v);
 
-    vec3 T = vec3(sin(phi)*sin(theta), 0, cos(phi)*sin(theta)); // check math
+    // Calculate tangent space coordinate frame
+    vec3 T = -vec3(sin(theta)*sin(phi), 0, sin(theta)*cos(phi));
     T = normalize(T);
     vec3 B = cross(N, T);
-    
+
     info.T = T;
     info.B = B;
     info.N = N;
