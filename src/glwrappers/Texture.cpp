@@ -51,13 +51,15 @@ namespace BOSL
 			case GL_RGBA:
 				format = internalFormat;
 				requiredChannels = 4;
+				break;
 			case GL_RGB16F:
 				format = GL_RGB;
 				requiredChannels = 3;
+				break;
 			default:
 				throw BoxOfSunlightError(
 					"Texture::load() - received an unknown format "
-					" for image " + imgFilePath);
+					"for image " + imgFilePath);
 		}
 		if (requiredChannels != nrChannels) {
 			throw BoxOfSunlightError("Texture::load() - the requestested internalFormat "

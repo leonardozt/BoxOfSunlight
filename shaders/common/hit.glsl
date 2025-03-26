@@ -121,8 +121,8 @@ HitInfo sphereHit(Ray ray, Sphere sphere, Interval rayT) {
         phi += 2*PI;
     }
     
-    float u = 1 - (theta / PI);
-    float v = phi / (2 * PI);
+    float u = phi / (2 * PI);
+    float v = 1 - (theta / PI);
     info.uv = vec2(u, v);
 
     // Calculate tangent space coordinate frame

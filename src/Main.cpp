@@ -31,17 +31,22 @@ int main()
 
         // Set up scene
         
-        BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "\\suzanne.obj");
+        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "\\suzanne.obj");
         //scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
-        scene.useCubemap = true;
 
-        //BOSL::Scene scene = createSpheres();
-        scene.camera.setPosition(glm::vec3(-2.0f, 2.0f, 3.0f));
+        BOSL::Scene scene = createSpheres();
+        scene.camera.setPosition(glm::vec3(-5.0f, 0.0f, 5.0f));
         scene.hemisphereSamples = 1000;
         scene.exposure = 3.0f;
-        scene.useNormalMap = false;
+        scene.useCubemap = true;
+
+        scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\albedo.jpg");
+        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\normal.jpg");
+        //scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\roughness.jpg");
+
         scene.useMetallicMap = false;
         scene.useRoughnessMap = false;
+
 
         /*
         std::string metalMapsDir = BOSL::config::texturesDir + "\\Metal048A_2K-JPG";
@@ -100,11 +105,12 @@ BOSL::Scene createSpheres() {
     BOSL::Scene scene;
 
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
+    /*
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(3.8f, 3.3f, -2.0f, 1.0f), 2.0f });
-
+    */
     return scene;
 }
 

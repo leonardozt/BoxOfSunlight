@@ -81,6 +81,7 @@ namespace BOSL
 		PointLight pLight;
 
 		bool useCubemap;
+
 		bool useAlbedoMap;
 		bool useNormalMap;
 		bool useMetallicMap;
