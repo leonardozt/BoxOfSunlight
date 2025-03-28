@@ -35,6 +35,7 @@ int main()
         
         BOSL::Scene scene;
         
+
         scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
 
         scene.camera.setPosition(glm::vec3(3.5f, 0.0f, 3.0f));
