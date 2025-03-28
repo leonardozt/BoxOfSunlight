@@ -1,7 +1,7 @@
 
-![Disney-1](https://github.com/user-attachments/assets/4e345823-1ad6-4971-9ade-b413e58a2404)
+![DiffuseSpecularClearcoat](https://github.com/user-attachments/assets/cdc30e9b-8cc0-42a5-a19f-2df7649e6258)
 
-![Disney-2](https://github.com/user-attachments/assets/216bff3e-8533-4993-a338-43dfd8c68dd3)
+![Sunrise](https://github.com/user-attachments/assets/fe61d42d-1bac-4c1a-84ce-8443d2d350e0)
 
 ![Disney-3](https://github.com/user-attachments/assets/44668a01-434d-47a0-bca4-53e63809bfd8)
 
