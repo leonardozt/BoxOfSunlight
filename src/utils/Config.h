@@ -13,11 +13,11 @@ namespace BOSL
 		const std::string windowTitle = "BoxOfSunlight";
 		
 		constexpr unsigned int windowWidth = 800;
-		constexpr unsigned int windowHeight = 800;
+		constexpr unsigned int windowHeight = 600;
 		
 		// Number of screen chunks used for rendering,
 		// on X and Y axes respectively
-		constexpr glm::uvec2 numChunks(80);
+		constexpr glm::uvec2 numChunks(40);
 
 		static_assert(
 			((numChunks.x > 0 && numChunks.y > 0)

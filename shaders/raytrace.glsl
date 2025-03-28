@@ -19,9 +19,9 @@ void storeColor(vec3 newColor, ivec2 pixelCoords) {
 void main() {
     // calculate image resolution
     ivec2 imgRes = imageSize(dstImage);
-    // The Global Work Group ID contains the coordinates
+    // The Work Group ID contains the coordinates
     // of the pixel that we're rendering
-    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy) + ivec2(chunkOffset);
+    ivec2 pixelCoords = ivec2(gl_WorkGroupID.xy) + ivec2(chunkOffset);
 
     // get random state
     rngState = rngStates[pixelCoords.y * imgRes.x + pixelCoords.x];
@@ -47,7 +47,7 @@ void main() {
         {
             vec3 texNormal = texture(normalMap, info.uv).rgb;
             texNormal = normalize(texNormal * 2.0 - 1.0);   
-            N = normalize(mat3(T, B, geometricNormal) * texNormal);   
+            N = normalize(mat3(T, B, geometricNormal) * texNormal);               
         }
         Material newMaterial = material;
         if (useAlbedoMap) { newMaterial.baseColor = texture(albedoMap, info.uv).rgb; }
@@ -59,8 +59,10 @@ void main() {
             vec3 L = normalize(pLight.position - info.p);
             vec3 Li = pLight.emission;
             float NdotL = max(dot(N, L), 0.0);
+
             DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial);
             Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
+        
         } else {
             // sample cubemap
             for (int s = 0; s < hemisphereSamples; s++)
@@ -68,8 +70,11 @@ void main() {
                 vec3 L = mat3(T,B,geometricNormal) * uniformSampleHemisphere(randomFloat(), randomFloat());
                 float NdotL = max(dot(N, L), 0.0);
                 vec3 Li = texture(cubemap, L).rgb;
-                DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial);                
-                Lo += (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;               
+                
+                DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial); 
+                vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;
+
+                Lo += brdfValue * Li * NdotL;               
             }
             Lo *= (2*PI)/(hemisphereSamples);
         }

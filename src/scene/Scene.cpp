@@ -11,12 +11,18 @@ namespace BOSL
 		glm::vec3 edge1 = v1.pos - v0.pos;
 		glm::vec3 edge2 = v2.pos - v0.pos;
 
+		// U delta
+		float deltaU1 = v1.uv.x - v0.uv.x;
+		float deltaU2 = v2.uv.x - v0.uv.x;
+
 		// V delta
 		float deltaV1 = v1.uv.y - v0.uv.y;
 		float deltaV2 = v2.uv.y - v0.uv.y;
 
-		glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
-		glm::vec3 tangent = glm::normalize(deltaV1 * edge2 - deltaV2 * edge1);
+		float f = 1.0f / (deltaU1 * deltaV2 - deltaU2 * deltaV1);
+
+		glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));		
+		glm::vec3 tangent = glm::normalize(f * (deltaV2 * edge1 - deltaV1 * edge2));
 		glm::vec3 bitangent = glm::cross(normal, tangent);
 
 		T = glm::vec4(tangent, 0.0f);
@@ -59,17 +65,18 @@ namespace BOSL
 			CamAtStart::lookAt,
 			CamAtStart::vfov,
 			CamAtStart::focalLength)
+		, cubemap("DefaultCubemap")
 		, albedoMap(config::texturesDir + "\\rock\\rock_face_03_diff_4k.jpg", GL_SRGB)
 		, normalMap(config::texturesDir + "\\rock\\rock_face_03_nor_gl_4k.jpg", GL_RGB)
 		, metallicMap(config::texturesDir + "\\rock\\rock_face_03_metal_4k.jpg", GL_RED)
 		, roughnessMap(config::texturesDir + "\\rock\\rock_face_03_rough_4k.jpg", GL_RED)
 		, useCubemap(false)
-		, useAlbedoMap(true)
-		, useNormalMap(true)
-		, useMetallicMap(true)
-		, useRoughnessMap(true)
+		, useAlbedoMap(false)
+		, useNormalMap(false)
+		, useMetallicMap(false)
+		, useRoughnessMap(false)
 		, hemisphereSamples(10)
-		, exposure(1.0f)
+		, exposure(3.0f)
 	{
 		// Left intentionally empty
 	}

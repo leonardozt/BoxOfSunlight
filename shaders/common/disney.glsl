@@ -63,11 +63,10 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float NdotL = dot(N,L);
     float NdotV = dot(N,V);
 
-    //if (NdotL < 0 || NdotV < 0) return results;
-
-    NdotL = max(NdotL, 0);
-    NdotV = max(NdotL, 0);
-
+    if (NdotL < 0 || NdotV < 0) {
+        results.diffuse = vec3(0.01f);
+        return results;
+    }
 
     vec3 H = normalize(L+V);
     float NdotH = dot(N,H);

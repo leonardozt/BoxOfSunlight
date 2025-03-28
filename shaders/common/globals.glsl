@@ -82,10 +82,6 @@ float randomFloat() {
     return float(xorshift()) * (1.0 / MAX_UINT);    
 }
 
-vec2 sampleUnitSquare() {
-    return vec2(randomFloat() - 0.5, randomFloat() - 0.5);
-}
-
 vec2 tentFilterPixel() {
     // 2x2 subpixel grid
     float r1 = 2 * randomFloat();

@@ -11,8 +11,12 @@ namespace BOSL
 	class Cubemap
 	{
 	public:
-		Cubemap();
+		Cubemap(const std::string& dirName);
 		~Cubemap();
+
+		// Changes the name of the directory from where
+		// the faces are loaded.
+		void setDirName(const std::string& name);
 
 		// Delete the copy constructor/assignment
 		Cubemap(const Cubemap&) = delete;
@@ -28,6 +32,10 @@ namespace BOSL
 		void load() const;
 	private:
 		GLuint textureObj;
+
+		// Name of directory from where
+		// the faces are loaded
+		std::string dirName;
 
 		void release();
 	};

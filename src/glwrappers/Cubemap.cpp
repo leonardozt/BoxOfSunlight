@@ -4,8 +4,9 @@
 
 namespace BOSL
 {
-	Cubemap::Cubemap()
-	{
+	Cubemap::Cubemap(const std::string& dirName)
+        : dirName(dirName)
+    {
         glGenTextures(1, &textureObj);
     }
 
@@ -23,7 +24,7 @@ namespace BOSL
 
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            faces[i] = config::cubemapsDir + "\\Cubemap-1\\" + faces[i];
+            faces[i] = config::cubemapsDir + "\\" + dirName + "\\" + faces[i];
         }
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureObj);
@@ -49,6 +50,7 @@ namespace BOSL
 
     Cubemap::Cubemap(Cubemap&& other) noexcept
         : textureObj(other.textureObj)
+        , dirName(other.dirName)
     {
         other.textureObj = 0;
     }
@@ -61,6 +63,8 @@ namespace BOSL
             release();
             // object is now 0
             std::swap(textureObj, other.textureObj);
+
+            dirName = other.dirName;
         }
         return *this;
     }
@@ -74,5 +78,10 @@ namespace BOSL
     Cubemap::~Cubemap()
     {
         release();
+    }
+
+    void Cubemap::setDirName(const std::string& name)
+    {
+        dirName = name;
     }
 }

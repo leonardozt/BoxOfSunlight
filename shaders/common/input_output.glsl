@@ -41,8 +41,7 @@ struct PointLight {
 };
 uniform PointLight pLight;
 
-struct Material
-{
+struct Material {
     vec3 baseColor;
     float subsurface;
     float metallic;

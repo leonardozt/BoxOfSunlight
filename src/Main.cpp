@@ -10,8 +10,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader\tiny_obj_loader.h>
 
-BOSL::Scene createSpheres();
 BOSL::Scene loadObj(std::string objPath);
+BOSL::Scene spheres();
+BOSL::Scene cube();
+BOSL::Scene threeLobes();
 
 int main()
 {
@@ -31,34 +33,39 @@ int main()
 
         // Set up scene
         
-        //BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "\\suzanne.obj");
-        //scene.camera.setPosition(glm::vec3(0.0f, 2.0f, 10.0f));
+        BOSL::Scene scene;
+        
+        scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
 
-        BOSL::Scene scene = createSpheres();
-        scene.camera.setPosition(glm::vec3(-5.0f, 0.0f, 5.0f));
-        scene.hemisphereSamples = 1000;
-        scene.exposure = 3.0f;
+        scene.camera.setPosition(glm::vec3(3.5f, 0.0f, 3.0f));
+        scene.camera.setVFOV(45.0f);
+
+        //scene.pLight.position = glm::vec3(3.0f);
+
+        //scene.cubemap.setDirName("SunriseCubemap");
         scene.useCubemap = true;
+        scene.hemisphereSamples = 1000;
+        scene.exposure = 2.0f;
 
-        scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\albedo.jpg");
-        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\normal.jpg");
-        //scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\pebbles\\roughness.jpg");
+        scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\albedo.jpg");
+        scene.useAlbedoMap = true;
+        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\normalDX.jpg");
+        scene.useNormalMap = true;
+        scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\metallic.jpg");
+        scene.useMetallicMap = true;
+        scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\roughness.jpg");
+        scene.useRoughnessMap = true;
+        
+        //scene.material.metallic = 1.0f;
+        //scene.material.roughness = 0.0f;
+        scene.material.specular = 1.0f;
+        
+        //scene.material.clearCoat = 1.0f;
+        //scene.material.clearCoatGloss = 1.0f;
 
-        scene.useMetallicMap = false;
-        scene.useRoughnessMap = false;
-
-
-        /*
-        std::string metalMapsDir = BOSL::config::texturesDir + "\\Metal048A_2K-JPG";
-        scene.albedoMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Color.jpg");
-        scene.normalMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_NormalGL.jpg");
-        scene.metallicMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Metalness.jpg");
-        scene.roughnessMap.setImgFilePath(metalMapsDir + "\\Metal048A_2K-JPG_Roughness.jpg");
-        */
-
-        scene.material.specular = 1;
-        scene.material.specularTint = 1;
-
+        //scene.material.sheen = 1.0f;
+        //scene.material.sheenTint = 1.0f;
+        
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
 
@@ -81,7 +88,7 @@ int main()
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
             // Print only every 500 frames
-            if ((fCounter%500) == 0) {
+            if ((fCounter%100) == 0) {
                 std::cout << "FPS: " << 1 / deltaTime << std::endl;
             }
             fCounter++;
@@ -101,20 +108,64 @@ int main()
     return exitStatus;
 }
 
-BOSL::Scene createSpheres() {
+BOSL::Scene cube()
+{
+    BOSL::Scene scene;
+
+    // bottom left, bottom right, ...
+    glm::vec2 uvbl = glm::vec2(0.0f, 0.0f);
+    glm::vec2 uvbr = glm::vec2(0.5f, 0.0f);
+    glm::vec2 uvtr = glm::vec2(0.5f, 0.5f);
+    glm::vec2 uvtl = glm::vec2(0.0f, 0.5f);
+    
+    BOSL::Vertex v0;
+    BOSL::Vertex v1;
+    BOSL::Vertex v2;
+    BOSL::Vertex v3;
+
+    // front face
+    v0 = { glm::vec4(-1.0f, -1.0f,  1.0f, 1.0f), uvbl };
+    v1 = { glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), uvbr };
+    v2 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvtr };
+    v3 = { glm::vec4(-1.0f,  1.0f,  1.0f, 1.0f), uvtl };
+    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
+    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
+
+    // right face
+    v0 = { glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), uvbl };
+    v1 = { glm::vec4( 1.0f, -1.0f, -1.0f, 1.0f), uvbr };
+    v2 = { glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), uvtr };
+    v3 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvtl };
+    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
+    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
+
+    // top face
+    v0 = { glm::vec4(-1.0f,  1.0f,  1.0f, 1.0f), uvbl };
+    v1 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvbr };
+    v2 = { glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), uvtr };
+    v3 = { glm::vec4(-1.0f,  1.0f, -1.0f, 1.0f), uvtl };
+    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
+    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
+
+    return scene;
+}
+
+
+BOSL::Scene spheres()
+{
     BOSL::Scene scene;
 
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
-    /*
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, 1.0f, -5.0f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-1.5f, -1.5f, 20.0f, 1.0f), 0.5f });
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(3.8f, 3.3f, -2.0f, 1.0f), 2.0f });
-    */
+
     return scene;
 }
 
-BOSL::Scene loadObj(std::string objPath) {
+BOSL::Scene loadObj(std::string objPath)
+{
     BOSL::Scene scene;
 
     size_t pos = objPath.find_last_of("\\");
@@ -181,5 +232,19 @@ BOSL::Scene loadObj(std::string objPath) {
         }
     }
     scene.triangles = triangles;
+    return scene;
+}
+
+BOSL::Scene threeLobes()
+{
+    BOSL::Scene scene;
+    
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,-2.5f,1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,2.5f,1.0f), 1.0f });
+
+    scene.camera.setPosition(glm::vec3(5.8f, 0.0f, 0.0f));
+    scene.camera.setVFOV(25.0f);
+
     return scene;
 }
