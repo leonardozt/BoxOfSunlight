@@ -1,7 +1,7 @@
 
-![DiffuseSpecularClearcoat](https://github.com/user-attachments/assets/cdc30e9b-8cc0-42a5-a19f-2df7649e6258)
+![DiffuseSpecularClearcoat](https://github.com/user-attachments/assets/40b9ed78-b2cf-47fa-b2dd-628367c53ef4)
 
-![Sunrise](https://github.com/user-attachments/assets/fe61d42d-1bac-4c1a-84ce-8443d2d350e0)
+![GoldenHour](https://github.com/user-attachments/assets/e52947ea-5780-4e16-960a-a05967996e0f)
 
 ![Disney-3](https://github.com/user-attachments/assets/44668a01-434d-47a0-bca4-53e63809bfd8)
 
