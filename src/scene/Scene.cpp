@@ -32,7 +32,7 @@ namespace BOSL
 
 	PointLight::PointLight()
 		: position(glm::vec3(3.0f))
-		, emission(glm::vec3(3.0f))
+		, emission(glm::vec3(1.0f))
 	{
 		// Left intentionally empty
 	}
@@ -66,10 +66,10 @@ namespace BOSL
 			CamAtStart::vfov,
 			CamAtStart::focalLength)
 		, cubemap("DefaultCubemap")
-		, albedoMap(config::texturesDir + "\\rock\\rock_face_03_diff_4k.jpg", GL_SRGB)
-		, normalMap(config::texturesDir + "\\rock\\rock_face_03_nor_gl_4k.jpg", GL_RGB)
-		, metallicMap(config::texturesDir + "\\rock\\rock_face_03_metal_4k.jpg", GL_RED)
-		, roughnessMap(config::texturesDir + "\\rock\\rock_face_03_rough_4k.jpg", GL_RED)
+		, albedoMap(config::texturesDir + "\\gold\\albedo.jpg", GL_SRGB)
+		, normalMap(config::texturesDir + "\\gold\\normalDX.jpg", GL_RGB)
+		, metallicMap(config::texturesDir + "\\gold\\metallic.jpg", GL_RED)
+		, roughnessMap(config::texturesDir + "\\gold\\roughness.jpg", GL_RED)
 		, useCubemap(false)
 		, useAlbedoMap(false)
 		, useNormalMap(false)

@@ -64,7 +64,7 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float NdotV = dot(N,V);
 
     if (NdotL < 0 || NdotV < 0) {
-        results.diffuse = vec3(0.01f);
+        //results.diffuse = vec3(0.01f);
         return results;
     }
 
@@ -73,9 +73,9 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float LdotH = dot(L,H);
 
     vec3 Cdlin = baseColor;
-    float Cdlum = 0.3f*Cdlin.x + 0.6f*Cdlin.y  + 0.1f*Cdlin.z; // luminance approximation
+    float Cdlum = 0.3*Cdlin[0] + 0.6*Cdlin[1]  + 0.1*Cdlin[2]; // luminance approximation
 
-    vec3 Ctint = Cdlum > 1e-8 ? Cdlin/Cdlum : vec3(1.0f); // normalize to isolate hue and sat.
+    vec3 Ctint = Cdlum > 0 ? Cdlin/Cdlum : vec3(1.0f); // normalize to isolate hue and sat.
     vec3 Cspec0 = mix(specular*0.08f*mix(vec3(1.0f), Ctint, specularTint), Cdlin, metallic);
     vec3 Csheen = mix(vec3(1.0f), Ctint, sheenTint);
 
@@ -112,9 +112,9 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float Gr = smithG_GGX(NdotL, 0.25f) * smithG_GGX(NdotV, 0.25f);
 
     results.diffuse = ((1/PI) * mix(Fd, ss, subsurface) * Cdlin + Fsheen) * (1-metallic);
-    //results.specular = Gs*Fs*Ds;
-    float denominator = 4.0 * NdotV * NdotL + 0.0001;
-    results.specular = Gs*Fs*Ds / denominator;
+    results.specular = Gs*Fs*Ds;
+    //float denominator = 4.0 * NdotV * NdotL + 0.0001;
+    //results.specular = Gs*Fs*Ds / denominator;
     results.clearCoat = vec3(0.25f*clearCoat*Gr*Fr*Dr);
 
     return results;

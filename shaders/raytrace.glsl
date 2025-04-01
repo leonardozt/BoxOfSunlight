@@ -61,8 +61,10 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
 
             DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial);
-            Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
-        
+            //Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
+            vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;
+            Lo = brdfValue * Li * NdotL;
+
         } else {
             // sample cubemap
             for (int s = 0; s < hemisphereSamples; s++)
@@ -73,7 +75,7 @@ void main() {
                 
                 DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial); 
                 vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;
-
+                
                 Lo += brdfValue * Li * NdotL;               
             }
             Lo *= (2*PI)/(hemisphereSamples);
