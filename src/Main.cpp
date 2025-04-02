@@ -38,28 +38,27 @@ int main()
         
         BOSL::Scene scene;
         //scene = elephant();
-        //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+        scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
         
-        scene = loadObj(BOSL::config::modelsDir + "\\cat.obj");
-
+        
         //scene = plane();
         
         //scene = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
         
-        
+        /*
         scene.pLight.position = glm::vec3(0.0f, 0.0f, 10.0f);
         scene.pLight.emission = glm::vec3(3.0f);
         scene.exposure = 1.0f;
-        
+        */
 
         
-        //scene.cubemap.setDirName("SunriseCubemapBlurred");
-        //scene.useCubemap = true;
-        scene.hemisphereSamples = 1;
+        //scene.cubemap.setDirName("MeadowCubemap");
+        scene.useCubemap = true;
+        scene.hemisphereSamples = 4096;
         scene.exposure = 3.0f;
         
 
-        scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 0.5f));        
+        scene.camera.setPosition(glm::vec3(0.0f,0.0f,2.3f));
         //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
         //scene.camera.setPosition(glm::vec3(-1.5f, 0.0f, 1.5f));
         //scene.camera.setPosition(glm::vec3(2.3f, 0.0f, 0.0f));
@@ -104,8 +103,6 @@ int main()
         scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric2\\roughness.jpg");
         scene.useRoughnessMap = true;
         */
-
-        std::cout << scene.triangles.size() << std::endl;
 
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
