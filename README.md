@@ -1,8 +1,6 @@
 
 ![DiffuseSpecularClearcoat2](https://github.com/user-attachments/assets/41a921f6-ca25-4fe8-90ae-9eb52c6ea7f2)
 
-![GoldenHour2](https://github.com/user-attachments/assets/77b92cf3-d31a-492e-9153-d607a4a73e55)
-
 ![elephant](https://github.com/user-attachments/assets/d26a192a-5311-4be0-ac8d-70e43a1dad81)
 
 ![FabricSheen1](https://github.com/user-attachments/assets/507c225d-42d2-45f8-b785-66f058bfe98b)
