@@ -38,27 +38,28 @@ int main()
         
         BOSL::Scene scene;
         //scene = elephant();
-        scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+        //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
         
-        
+        scene = goldenHour();
+
         //scene = plane();
         
         //scene = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
         
         /*
-        scene.pLight.position = glm::vec3(0.0f, 0.0f, 10.0f);
+        scene.pLight.position = glm::vec3(2.0f, 2.0f, 10.0f);
         scene.pLight.emission = glm::vec3(3.0f);
         scene.exposure = 1.0f;
         */
 
-        
-        //scene.cubemap.setDirName("MeadowCubemap");
+        /*
+        //scene.cubemap.setDirName("SunriseCubemapBlurred");
         scene.useCubemap = true;
         scene.hemisphereSamples = 4096;
         scene.exposure = 3.0f;
-        
+        */
 
-        scene.camera.setPosition(glm::vec3(0.0f,0.0f,2.3f));
+        //scene.camera.setPosition(glm::vec3(0.0f,0.0f,2.3f));
         //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
         //scene.camera.setPosition(glm::vec3(-1.5f, 0.0f, 1.5f));
         //scene.camera.setPosition(glm::vec3(2.3f, 0.0f, 0.0f));
@@ -68,33 +69,36 @@ int main()
         //scene.camera.setPosition(glm::vec3(1.0f, 1.5f, 2.0f));
         //scene.camera.setLookAt(glm::vec3(-0.35f,0.1f,0.0f));
         /*
-        scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\rust\\albedo.jpg");
-        scene.useAlbedoMap = true;
-        //scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\elephant\\normalDX.jpg");
-        //scene.useNormalMap = true;
-        scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\rust\\roughness.jpg");
+        //scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\albedo.jpg");
+        //scene.useAlbedoMap = true;
+        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\normalDX.jpg");
+        scene.useNormalMap = true;
+        scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\roughness.jpg");
         scene.useRoughnessMap = true;
-        scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\rust\\metallic.jpg");
+        scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\metallic.jpg");
         scene.useMetallicMap = true;
         */
+        /*
         BOSL::Material material;
-        material.baseColor = glm::vec3(0.10f, 0.22f, 0.80f);
+        //material.baseColor = glm::vec3(0.10f, 0.22f, 0.80f);
         //material.baseColor = glm::vec3(0.19f, 0.09f, 0.04f);
         //material.baseColor = glm::vec3(0.95f, 0.20f, 0.05f);
         //material.baseColor = glm::vec3(0.11f, 0.53f, 0.30f);
         //material.baseColor = glm::vec3(0.25f, 0.02f, 0.30f);        
+        //material.baseColor = glm::vec3(0.73f, 0.56f, 0.3f);
+        material.baseColor = glm::vec3(0.5f, 0.49f, 0.48f);
         material.subsurface = 0.0f;
-        material.metallic = 0.0f;
-        material.specular = 0.0f;
-        material.specularTint = 0.0f;
-        material.roughness = 1.0f;
+        material.metallic = 1.0f;
+        material.specular = 1.0f;
+        material.specularTint = 1.0f;
+        material.roughness = 0.8f;
         material.anisotropic = 0.0f;
         material.sheen = 0.0f;
         material.sheenTint = 0.0f;
         material.clearCoat = 0.0f;
         material.clearCoatGloss = 0.0f;
         scene.material = material;
-        
+        */
         /*
         scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric2\\albedo.jpg");
         scene.useAlbedoMap = true;
@@ -299,8 +303,8 @@ BOSL::Scene threeLobes()
 {
     BOSL::Scene scene;
     
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,-2.5f,1.0f), 1.0f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,-2.5f,1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
     //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,2.5f,1.0f), 1.0f });
 
     scene.camera.setPosition(glm::vec3(5.8f, 0.0f, 0.0f));
@@ -322,21 +326,26 @@ BOSL::Scene goldenHour()
 
     scene.cubemap.setDirName("SunriseCubemap");
     scene.useCubemap = true;
-    scene.hemisphereSamples = 1000;
+    scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
 
-    scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\albedo.jpg");
-    scene.useAlbedoMap = true;
-    scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\normalDX.jpg");
-    scene.useNormalMap = true;
-    scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\metallic.jpg");
-    scene.useMetallicMap = true;
-    scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\roughness.jpg");
-    scene.useRoughnessMap = true;
+    //scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\albedo.jpg");    
+    //scene.useAlbedoMap = true;
+    //scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\normalDX.jpg");
+    //scene.useNormalMap = true;
+    //scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\metallic.jpg");
+    //scene.useMetallicMap = true;
+    //scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\roughness.jpg");
+    //scene.useRoughnessMap = true;
 
     scene.material.specular = 1.0f;
     scene.material.specularTint = 1.0f;
     scene.material.anisotropic = 1.0f;
+
+    scene.material.baseColor = glm::vec3(0.73f, 0.56f, 0.3f);
+
+    scene.material.metallic = 1.0f;
+    scene.material.roughness = 0.3f;
 
     return scene;
 }

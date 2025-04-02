@@ -64,7 +64,7 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float NdotV = dot(N,V);
 
     if (NdotL < 0 || NdotV < 0) {
-        //results.diffuse = vec3(0.01f);
+        //results.diffuse = vec3(0.1f);
         return results;
     }
 
