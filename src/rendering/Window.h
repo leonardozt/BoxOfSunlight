@@ -5,11 +5,12 @@
 
 #include "..\utils\BoxOfSunlightError.h"
 
-namespace BOSL {
-    // initializes glfw and sets window hints.
+namespace BOSL
+{
+    // Initializes GLFW and sets window hints.
     void initGLFW();
 
-    // This class is used to create and manage a glfw window.
+    // This class is used to create and manage a GLFW window.
     // Call initGLFW() before you create Window objects.
     // After you are done with glfw, remember to call glfwTerminate()
     class Window {
@@ -31,8 +32,8 @@ namespace BOSL {
         // Buffer swap
         void update();
 
-        // To get a proper value, remember to periodically call glfwPollEvents()
-        // in main loop.
+        // To get a proper value, remember to periodically
+        // call glfwPollEvents() in the main loop.
         int shouldClose() { return glfwWindowShouldClose(windowPtr); }
 
     private:

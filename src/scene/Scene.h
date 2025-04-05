@@ -56,12 +56,12 @@ namespace BOSL
 		Material();
 	};
 
-	// Objects of this class are used to store descriptions
-	// of scenes to be rendered.
-	// The OpenGL context needs to be initialized before Scene object creation.
+	
 	class Scene
 	{
 	public:
+		// Before creating a Scene object,
+		// initialize the OpenGL context
 		Scene();
 
 		Camera camera;

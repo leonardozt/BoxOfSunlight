@@ -19,7 +19,7 @@ void storeColor(vec3 newColor, ivec2 pixelCoords) {
 void main() {
     // calculate image resolution
     ivec2 imgRes = imageSize(dstImage);
-    // The Work Group ID contains the coordinates
+    // The work group ID contains the coordinates
     // of the pixel that we're rendering
     ivec2 pixelCoords = ivec2(gl_WorkGroupID.xy) + ivec2(chunkOffset);
 
@@ -30,9 +30,8 @@ void main() {
     Ray ray = rayAroundPixel(pixelCoords, camera);
 
     HitInfo info = anyHit(ray, rayT);
-
-    // outgoing radiance
-    vec3 Lo = vec3(0);
+    
+    vec3 Lo = vec3(0); // outgoing radiance
     if (info.hit) {
         // Solve the reflection equation
         
@@ -61,15 +60,15 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
 
             DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial);
-            //Lo = (results.diffuse + results.specular + results.clearCoat) * Li * NdotL;
             vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;
             Lo = brdfValue * Li * NdotL;
 
         } else {
             // sample cubemap
             for (int s = 0; s < hemisphereSamples; s++)
-            {    
-                vec3 L = mat3(T,B,geometricNormal) * uniformSampleHemisphere(randomFloat(), randomFloat());
+            {
+                float u1 = randomFloat(); float u2 = randomFloat();
+                vec3 L = mat3(T,B,geometricNormal) * uniformSampleHemisphere(u1, u2);
                 float NdotL = max(dot(N, L), 0.0);
                 vec3 Li = texture(cubemap, L).rgb;
                 
@@ -83,7 +82,7 @@ void main() {
     } else {
         if (useCubemap) { Lo = texture(cubemap, ray.D).rgb; }
     }
-    // Calculate new random state with xorshift and save
+    // Calculate and store new random state with xorshift
     rngStates[pixelCoords.y * imgRes.x + pixelCoords.x] = xorshift();
     // Store output color
     storeColor(Lo, pixelCoords);

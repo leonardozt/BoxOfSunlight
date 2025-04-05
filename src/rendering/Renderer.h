@@ -53,7 +53,7 @@ namespace BOSL
 
 		// Texture Image Units used by Compute Shader
 		enum CompShaderTexImgUnits {
-			cubemapImgUnit, // cubemap = 0
+			cubemapImgUnit, // cubemapImgUnit = 0
 			albedoMapImgUnit,
 			normalMapImgUnit,
 			metallicMapImgUnit,
@@ -74,7 +74,7 @@ namespace BOSL
 		};
 		static const std::array<std::string, NUM_COMP_IMG_UNITS> compShaderImgNames;
 
-		// Indexes of SSBOs used in Compute Shader
+		// Indices of SSBOs used in Compute Shader
 		enum CompShaderSSBOIndices {
 			trianglesBufIdx,
 			spheresBufIdx,
@@ -118,7 +118,7 @@ namespace BOSL
 		void initQuadTexture();
 
 		// Checks system's limitations for Compute Shader Workgroups,
-		// Returns false if limitations are too low.
+		// Returns false if limitations are too strict.
 		bool checkComputeLimits();
 
 		void release();

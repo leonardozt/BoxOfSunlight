@@ -4,8 +4,7 @@
 
 namespace BOSL
 {
-	// Quad that fills the entire screen,
-	// in Normalized Device Coordinates
+	// Quad that fills the entire screen
 	class ScreenQuad
 	{
 	public:

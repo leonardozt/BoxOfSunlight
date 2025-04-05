@@ -5,7 +5,8 @@
 
 #include <fstream>
 
-namespace BOSL {
+namespace BOSL
+{
 	class Shader
 	{
 	public:

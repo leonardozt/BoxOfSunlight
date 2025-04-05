@@ -37,15 +37,14 @@ struct Viewport {
     vec3 vert;
     // position of pixel (0,0) in 3D space
     vec3 pixel00;
-    // horizontal distance between adjacent pixel centers
+    // distance between horizontally adjacent pixels
     vec3 deltaHoriz;
-    // vertical distance between adjacent pixel centers
+    // distance between vertically adjacent pixels
     vec3 deltaVert;
 };
 
 struct Camera {
     vec3 position;
-    //float aperture;
     Viewport viewport;
 };
 
@@ -77,9 +76,9 @@ uint xorshift() {
     return rngState;
 }
 
-// Returns a random float in [0, 1]
+// Returns a random float in [0, 1)
 float randomFloat() {
-    return float(xorshift()) * (1.0 / MAX_UINT);    
+    return float(xorshift()) * (1.0 / (MAX_UINT+1.0));    
 }
 
 vec2 tentFilterPixel() {
@@ -109,7 +108,7 @@ vec3 rayAt(Ray r, float t)
 
 // Returns true if the interval contains the value
 bool contains(Interval interval, float value){
-    return interval.min <= value && value <= interval.max;
+    return (interval.min <= value && value <= interval.max);
 }
 
 // Returns ray passing through a random point point around

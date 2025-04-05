@@ -30,7 +30,7 @@ HitInfo triangleHit(Ray ray, Triangle triangle, Interval rayT)
 
     vec3 p = rayAt(ray, t);
 
-    // Pineda and Barycentric coordinates
+    // Pineda test and Barycentric coordinates
     float area2 = length(cross(v1-v0, v2-v0));
     vec3 C;
 

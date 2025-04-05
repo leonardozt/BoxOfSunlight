@@ -66,19 +66,18 @@ namespace BOSL
 			CamAtStart::vfov,
 			CamAtStart::focalLength)
 		, cubemap("DefaultCubemap")
-		, albedoMap(config::texturesDir + "\\gold\\albedo.jpg", GL_SRGB)
-		, normalMap(config::texturesDir + "\\gold\\normalDX.jpg", GL_RGB)
-		, metallicMap(config::texturesDir + "\\gold\\metallic.jpg", GL_RED)
-		, roughnessMap(config::texturesDir + "\\gold\\roughness.jpg", GL_RED)
+		, albedoMap(config::texturesDir + "\\DefaultBricks\\albedo.jpg", GL_SRGB)
+		, normalMap(config::texturesDir + "\\DefaultBricks\\normalDX.jpg", GL_RGB)
+		, metallicMap(config::texturesDir + "\\DefaultBricks\\metallic.jpg", GL_RED)
+		, roughnessMap(config::texturesDir + "\\DefaultBricks\\roughness.jpg", GL_RED)
 		, useCubemap(false)
 		, useAlbedoMap(false)
 		, useNormalMap(false)
 		, useMetallicMap(false)
 		, useRoughnessMap(false)
-		, hemisphereSamples(10)
+		, hemisphereSamples(16)
 		, exposure(3.0f)
 	{
 		// Left intentionally empty
 	}
 }
-

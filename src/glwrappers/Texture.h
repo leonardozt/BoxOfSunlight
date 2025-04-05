@@ -9,12 +9,10 @@
 
 namespace BOSL
 {
-	// Class that wraps an OpenGL 2D Texture Object
+	// Wrapper class for 2D textures
 	class Texture
 	{
 	public:
-		// Parameter SRGB will be ignored when loading image file
-		// for images with a number of channels different from 3.
 		Texture(std::string imgFilePath, GLint internalFormat = GL_RGB);
 
 		// Loads image data into OpenGL context.

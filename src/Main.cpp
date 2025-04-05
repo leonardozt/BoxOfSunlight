@@ -10,13 +10,15 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader\tiny_obj_loader.h>
 
-BOSL::Scene loadObj(std::string objPath);
+std::vector<BOSL::Triangle> loadObj(std::string objPath);
+BOSL::Scene convergenceTest();
 BOSL::Scene spheres();
-BOSL::Scene cube();
 BOSL::Scene threeLobes();
 BOSL::Scene goldenHour();
 BOSL::Scene plane();
+BOSL::Scene sheen();
 BOSL::Scene elephant();
+BOSL::Scene suzanne();
 
 int main()
 {
@@ -34,135 +36,34 @@ int main()
     
         BOSL::initGL();
 
-        // Set up scene        
+        // Set up scene                
+        BOSL::Scene scene = convergenceTest();                
         
-        BOSL::Scene scene;
-        //scene = elephant();
-        //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
-        
-        scene = goldenHour();
-
-        //scene = plane();
-        
-        //scene = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
-        
-        /*
-        scene.pLight.position = glm::vec3(2.0f, 2.0f, 10.0f);
-        scene.pLight.emission = glm::vec3(3.0f);
-        scene.exposure = 1.0f;
-        */
-
-        /*
-        //scene.cubemap.setDirName("SunriseCubemapBlurred");
-        scene.useCubemap = true;
-        scene.hemisphereSamples = 4096;
-        scene.exposure = 3.0f;
-        */
-
-        //scene.camera.setPosition(glm::vec3(0.0f,0.0f,2.3f));
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-        //scene.camera.setPosition(glm::vec3(-1.5f, 0.0f, 1.5f));
-        //scene.camera.setPosition(glm::vec3(2.3f, 0.0f, 0.0f));
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, -3.0f));
-        //scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
-        //scene.camera.setPosition(glm::vec3(1.0f, 1.5f, 2.0f));
-        //scene.camera.setLookAt(glm::vec3(-0.35f,0.1f,0.0f));
-        /*
-        //scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\albedo.jpg");
-        //scene.useAlbedoMap = true;
-        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\normalDX.jpg");
-        scene.useNormalMap = true;
-        scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\roughness.jpg");
-        scene.useRoughnessMap = true;
-        scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\metal\\metallic.jpg");
-        scene.useMetallicMap = true;
-        */
-        /*
-        BOSL::Material material;
-        //material.baseColor = glm::vec3(0.10f, 0.22f, 0.80f);
-        //material.baseColor = glm::vec3(0.19f, 0.09f, 0.04f);
-        //material.baseColor = glm::vec3(0.95f, 0.20f, 0.05f);
-        //material.baseColor = glm::vec3(0.11f, 0.53f, 0.30f);
-        //material.baseColor = glm::vec3(0.25f, 0.02f, 0.30f);        
-        //material.baseColor = glm::vec3(0.73f, 0.56f, 0.3f);
-        material.baseColor = glm::vec3(0.5f, 0.49f, 0.48f);
-        material.subsurface = 0.0f;
-        material.metallic = 1.0f;
-        material.specular = 1.0f;
-        material.specularTint = 1.0f;
-        material.roughness = 0.8f;
-        material.anisotropic = 0.0f;
-        material.sheen = 0.0f;
-        material.sheenTint = 0.0f;
-        material.clearCoat = 0.0f;
-        material.clearCoatGloss = 0.0f;
-        scene.material = material;
-        */
-        /*
-        scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric2\\albedo.jpg");
-        scene.useAlbedoMap = true;
-        scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric2\\normalDX.jpg");
-        scene.useNormalMap = true;
-        scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric2\\roughness.jpg");
-        scene.useRoughnessMap = true;
-        */
-
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
 
-        // ------------------------------------------------------------------
-        // timing 
-        //double deltaTime = 0.0f; // time between 500 frames
-        //double lastFrameTime = 0.0f; // time of frame of last measure
-        unsigned int fCounter = 0;
-        // ------------------------------------------------------------------
-
-        double startTime = glfwGetTime();
-
-        // (for testing)
-        //unsigned int stopAtFrame = 1;
+        unsigned int fCounter = 0; // frame counter               
         while (!window.shouldClose())
-        {                        
-            renderer.render();
-            window.update();
-            
-            /*
-            if (fCounter < stopAtFrame) {
-                renderer.render();
-                window.update();
-            }
-            */
-            
-            glfwPollEvents();
+        {
+            double startTime = glfwGetTime();
 
-            // --------------------------------------------------------------
-            /*
-            if ((fCounter%500) == 0) {
-                // Set frame time
-                double currentTime = glfwGetTime();
-                deltaTime = currentTime - lastFrameTime;
-                lastFrameTime = currentTime;
-                // Print FPS
-                //std::cout << "FPS: " << 500 / deltaTime << std::endl;
-                std::cout << "time: " << (int)deltaTime / 60 << "m "
-                    << (int)deltaTime % 60 << "s\n";
-            }
-            */
-            fCounter++;
-            // --------------------------------------------------------------
-        
+            renderer.render();
+            window.update(); 
+
             double endTime = glfwGetTime();
+
+            glfwPollEvents();    
+            fCounter++;        
+
             double deltaTime = endTime - startTime;
-            std::cout << "time: " << (int)deltaTime / 60 << "m "
-                << (int)deltaTime % 60 << "s\n";
-        
-        } 
-        double endTime = glfwGetTime();
-        double deltaTime = endTime - startTime;
-        std::cout << "\n# of frames: " << fCounter << "\n";
-        std::cout << "time: " << (int)deltaTime / 60 << "m "
-            << (int)deltaTime % 60 << "s\n";        
+            std::cout
+                << "frame #"
+                << fCounter
+                << " rendering time: "
+                << (int)deltaTime / 60 << "m "
+                << (int)deltaTime % 60 << "s\n";        
+        }
+
     } catch(BoxOfSunlightError& err) {
         std::cerr << "BoxOfSunlightError - " << err.what() << std::endl;
         exitStatus = EXIT_FAILURE;
@@ -172,65 +73,9 @@ int main()
     return exitStatus;
 }
 
-BOSL::Scene cube()
+std::vector<BOSL::Triangle> loadObj(std::string objPath)
 {
-    BOSL::Scene scene;
-
-    // bottom left, bottom right, ...
-    glm::vec2 uvbl = glm::vec2(0.0f, 0.0f);
-    glm::vec2 uvbr = glm::vec2(0.5f, 0.0f);
-    glm::vec2 uvtr = glm::vec2(0.5f, 0.5f);
-    glm::vec2 uvtl = glm::vec2(0.0f, 0.5f);
-    
-    BOSL::Vertex v0;
-    BOSL::Vertex v1;
-    BOSL::Vertex v2;
-    BOSL::Vertex v3;
-
-    // front face
-    v0 = { glm::vec4(-1.0f, -1.0f,  1.0f, 1.0f), uvbl };
-    v1 = { glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), uvbr };
-    v2 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvtr };
-    v3 = { glm::vec4(-1.0f,  1.0f,  1.0f, 1.0f), uvtl };
-    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
-    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
-
-    // right face
-    v0 = { glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), uvbl };
-    v1 = { glm::vec4( 1.0f, -1.0f, -1.0f, 1.0f), uvbr };
-    v2 = { glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), uvtr };
-    v3 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvtl };
-    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
-    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
-
-    // top face
-    v0 = { glm::vec4(-1.0f,  1.0f,  1.0f, 1.0f), uvbl };
-    v1 = { glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), uvbr };
-    v2 = { glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), uvtr };
-    v3 = { glm::vec4(-1.0f,  1.0f, -1.0f, 1.0f), uvtl };
-    scene.triangles.push_back(BOSL::Triangle(v0, v1, v2));
-    scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
-
-    return scene;
-}
-
-
-BOSL::Scene spheres()
-{
-    BOSL::Scene scene;
-
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, -4.3f, -5.0f, 1.0f), 2.0f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-3.5f, 3.5f, -1.0f, 1.0f), 0.5f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(3.8f, 3.3f, -2.0f, 1.0f), 2.0f });
-
-    return scene;
-}
-
-BOSL::Scene loadObj(std::string objPath)
-{
-    BOSL::Scene scene;
+    std::vector<BOSL::Triangle> triangles;
 
     size_t pos = objPath.find_last_of("\\");
     std::string mtlBaseDir = objPath.substr(0, pos + 1);
@@ -252,8 +97,6 @@ BOSL::Scene loadObj(std::string objPath)
     if (!ret) {
         throw BoxOfSunlightError("tinyobjloader failed to load .obj file");
     }
-
-    std::vector<BOSL::Triangle> triangles;
 
     for (size_t s = 0; s < shapes.size(); s++) {
         // Each shape contains a mesh
@@ -295,7 +138,49 @@ BOSL::Scene loadObj(std::string objPath)
             index_offset += 3;
         }
     }
-    scene.triangles = triangles;
+    return triangles;
+}
+
+BOSL::Scene convergenceTest()
+{
+    BOSL::Scene scene;
+    
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+
+    scene.useCubemap = true;
+    scene.hemisphereSamples = 1024;
+    scene.exposure = 3.0f;
+
+    scene.camera.setPosition(glm::vec3(0.0f,0.0f,2.3f));
+        
+    scene.material.baseColor = glm::vec3(0.10f, 0.22f, 0.80f);
+    scene.material.metallic = 1.0f;
+    scene.material.roughness = 0.1f;
+
+    return scene;
+}
+
+BOSL::Scene spheres()
+{
+    BOSL::Scene scene;
+
+    scene.pLight.position = glm::vec3(2.0f, 2.0f, 10.0f);
+    scene.pLight.emission = glm::vec3(3.0f);
+    scene.exposure = 1.0f;
+    
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-5.0f, -4.3f, -5.0f, 1.0f), 2.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(4.0f, -1.0f, -1.5f, 1.0f), 1.0f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(-3.5f, 3.5f, -1.0f, 1.0f), 0.5f });
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(3.8f, 3.3f, -2.0f, 1.0f), 2.0f });
+
+    scene.camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+
+    scene.material.baseColor = glm::vec3(0.6f, 0.6f, 0.6f);
+    scene.material.metallic = 1.0f;
+    scene.material.anisotropic = 1.0f;
+    scene.material.roughness = 0.3f;
+
     return scene;
 }
 
@@ -303,12 +188,23 @@ BOSL::Scene threeLobes()
 {
     BOSL::Scene scene;
     
+    scene.useCubemap = true;
+    scene.hemisphereSamples = 4096;
+    scene.exposure = 3.0f;
+
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,2.5f,1.0f), 1.0f });
+    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
     //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,-2.5f,1.0f), 1.0f });
-    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
-    //scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,2.5f,1.0f), 1.0f });
 
     scene.camera.setPosition(glm::vec3(5.8f, 0.0f, 0.0f));
     scene.camera.setVFOV(25.0f);
+
+    scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\RuinedBricks\\albedo.jpg");
+    scene.useAlbedoMap = true;
+    scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\RuinedBricks\\normalDX.jpg");
+    scene.useNormalMap = true;
+    scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\RuinedBricks\\roughness.jpg");
+    scene.useRoughnessMap = true;
 
     return scene;
 }
@@ -319,7 +215,6 @@ BOSL::Scene goldenHour()
 
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
 
-    //scene.camera.setPosition(glm::vec3(3.5f, 0.0f, 3.0f));
     scene.camera.setPosition(glm::vec3(3.5f, 0.0f, 1.8f));
 
     scene.camera.setVFOV(45.0f);
@@ -328,16 +223,7 @@ BOSL::Scene goldenHour()
     scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
-
-    //scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\albedo.jpg");    
-    //scene.useAlbedoMap = true;
-    //scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\normalDX.jpg");
-    //scene.useNormalMap = true;
-    //scene.metallicMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\metallic.jpg");
-    //scene.useMetallicMap = true;
-    //scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\gold\\roughness.jpg");
-    //scene.useRoughnessMap = true;
-
+    
     scene.material.specular = 1.0f;
     scene.material.specularTint = 1.0f;
     scene.material.anisotropic = 1.0f;
@@ -367,39 +253,53 @@ BOSL::Scene plane()
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
 
-    //scene.camera.setPosition(glm::vec3(0.0f, 0.1f, -10.2f));
-    scene.camera.setPosition(glm::vec3(0.0f, 20.0f, -20.0f));
-    //scene.camera.setPosition(glm::vec3(0.0f, 0.005f, -10.2f));
-
+    scene.camera.setPosition(glm::vec3(0.0f, 0.1f, -10.2f));
+    //scene.camera.setPosition(glm::vec3(0.0f, 20.0f, -20.0f));
+    
     scene.camera.setVFOV(40.0f);
 
-    BOSL::Material material;
-    material.baseColor = glm::vec3(0.95f, 0.20f, 0.05f);
-    material.subsurface = 0.0f;
-    material.metallic = 0.0f;
-    material.specular = 1.0f;
-    material.specularTint = 0.0f;
-    material.roughness = 0.0f;
-    material.anisotropic = 0.0f;
-    material.sheen = 0.0f;
-    material.sheenTint = 0.0f;
-    material.clearCoat = 0.0f;
-    material.clearCoatGloss = 0.0f;
-    scene.material = material;
+    scene.material.baseColor = glm::vec3(0.95f, 0.20f, 0.05f);
+    scene.material.roughness = 0.0f;
+
+    return scene;
+}
+
+BOSL::Scene sheen()
+{
+    BOSL::Scene scene;
+
+    scene.useCubemap = true;
+    scene.hemisphereSamples = 4096;
+    scene.exposure = 3.0f;
+
+    scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
+
+    scene.camera.setPosition(glm::vec3(0.0f, 0.0f, -3.0f));
+
+    scene.albedoMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric\\albedo.jpg");
+    scene.useAlbedoMap = true;
+    scene.normalMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric\\normalDX.jpg");
+    scene.useNormalMap = true;
+    scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\fabric\\roughness.jpg");
+    scene.useRoughnessMap = true;
+
+    scene.material.sheen = 1.0f;
+    //scene.material.sheenTint = 1.0f;
 
     return scene;
 }
 
 BOSL::Scene elephant()
 {
-    BOSL::Scene scene = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
+    BOSL::Scene scene;
+
+    scene.triangles = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
 
     scene.cubemap.setDirName("SunriseCubemapBlurred");
     scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
 
-    //scene.camera.setPosition(glm::vec3(1.0f, 1.5f, 2.0f));
     scene.camera.setPosition(glm::vec3(-1.7f, 0.5f, 2.2f));
 
     scene.camera.setLookAt(glm::vec3(0.3f, 0.1f, 0.0f));
@@ -409,23 +309,24 @@ BOSL::Scene elephant()
     scene.roughnessMap.setImgFilePath(BOSL::config::texturesDir + "\\elephant\\roughness.jpg");
     scene.useRoughnessMap = true;
 
-    BOSL::Material material;
-    //material.baseColor = glm::vec3(0.10f, 0.22f, 0.80f);
-    //material.baseColor = glm::vec3(0.19f, 0.09f, 0.04f);
-    material.baseColor = glm::vec3(0.95f, 0.20f, 0.05f);
-    //material.baseColor = glm::vec3(0.11f, 0.53f, 0.30f);
-    //material.baseColor = glm::vec3(0.25f, 0.02f, 0.30f);        
-    material.subsurface = 0.0f;
-    material.metallic = 0.0f;
-    material.specular = 0.0f;
-    material.specularTint = 0.0f;
-    material.roughness = 1.0f;
-    material.anisotropic = 0.0f;
-    material.sheen = 0.0f;
-    material.sheenTint = 0.0f;
-    material.clearCoat = 0.0f;
-    material.clearCoatGloss = 0.0f;
-    scene.material = material;
+    return scene;
+}
+
+BOSL::Scene suzanne()
+{
+    BOSL::Scene scene;
+
+    scene.useCubemap = true;
+    scene.hemisphereSamples = 4096;
+    scene.exposure = 3.0f;
+    
+    scene.triangles = loadObj(BOSL::config::modelsDir + "\\suzanne.obj");
+
+    scene.camera.setPosition(glm::vec3(-2.0f, 2.0f, 2.5f));
+
+    scene.material.baseColor = glm::vec3(0.73f, 0.56f, 0.3f);
+    scene.material.metallic = 1.0f;
+    scene.material.roughness = 0.2f;
 
     return scene;
 }

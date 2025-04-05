@@ -29,6 +29,7 @@ namespace BOSL
 
     void ScreenQuad::init()
 	{
+        // (the positions are in normalized device coordinates)
         float vertices[] = {
         // positions   // texCoords
         -1.0f,  1.0f,   0.0f, 0.0f,

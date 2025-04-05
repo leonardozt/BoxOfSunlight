@@ -7,16 +7,17 @@ namespace BOSL
         // Initialize GLEW
         if (glewInit() != GLEW_OK) {
             throw BoxOfSunlightError("GLEW failed to initialize");
+        }        
+        if (config::debugMode) {
+            // Enable Debug Mode
+            glEnable(GL_DEBUG_OUTPUT);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glDebugMessageCallback(debug::debugMessageCallback, 0);
+            // Print limitations for Compute Shader
+            debug::printComputeLimits();        
         }
-        // Enable Debug Mode
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(debug::debugMessageCallback, 0);
-        // Set Viewport
+        // Set viewport
         glViewport(0, 0, config::windowWidth, config::windowHeight);
-        
-        // Print limitations for Compute Shaders
-        if (config::debugMode) { debug::printComputeLimits(); }
     }
 
     const std::array<std::string, Renderer::NUM_COMP_TEX_IMG_UNITS>
@@ -54,7 +55,7 @@ namespace BOSL
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
  
-        // Render chunks one at a time
+        // Render image chunks, one at a time
         compShader.use();
         constexpr glm::uvec2 numChunks = config::numChunks;
         constexpr unsigned int chunkWidth = config::windowWidth / numChunks.x;
@@ -74,7 +75,7 @@ namespace BOSL
         }
         compShader.stopUsing();
 
-        // send rendered texture to quad shader for normal drawing pass
+        // send output texture to quad shader for second rendering pass
         quadShader.use();
         quad.draw();
         quadShader.stopUsing();
@@ -112,7 +113,7 @@ namespace BOSL
         }
         compShader.stopUsing();
 
-        // random numbers (test)
+        // random numbers
         std::vector<unsigned int> randomSeeds;
         for (unsigned int i = 0; i < config::windowWidth*config::windowHeight; i++) {
                 randomSeeds.push_back(rand());
@@ -207,18 +208,16 @@ namespace BOSL
         glBindImageTexture(dstImgUnit, quadTexObj, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     }
 
-    // TODO: update to base check on number of chunks!
     bool Renderer::checkComputeLimits()
     {
         GLint workGroupCount[2];
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCount[0]);
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCount[1]);
 
-        if (workGroupCount[0] < config::windowWidth ||
-            workGroupCount[1] < config::windowHeight) {
+        if (workGroupCount[0] < (int)(config::windowWidth/config::numChunks.x) ||
+            workGroupCount[1] < (int)(config::windowHeight/config::numChunks.y)) {
             return false;
         }
-
         return true;
     }
    

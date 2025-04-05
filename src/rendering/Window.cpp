@@ -1,5 +1,6 @@
 #include "Window.h"
-namespace BOSL {
+namespace BOSL
+{
     void initGLFW() {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

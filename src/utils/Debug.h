@@ -20,8 +20,7 @@ namespace BOSL
             const GLchar* message,
             const void* userParam);
         
-        // Prints system's limitations for Compute Shader Workgroups to console,
-        // Returns true if the output image can rendered, false otherwhise
+        // Prints to console the system's limitations for Compute Shader Workgroups.
         void printComputeLimits();
     }
 }

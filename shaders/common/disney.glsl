@@ -64,7 +64,6 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
     float NdotV = dot(N,V);
 
     if (NdotL < 0 || NdotV < 0) {
-        //results.diffuse = vec3(0.1f);
         return results;
     }
 
@@ -113,8 +112,6 @@ DisneyResults disneyBRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y, Material mat)
 
     results.diffuse = ((1/PI) * mix(Fd, ss, subsurface) * Cdlin + Fsheen) * (1-metallic);
     results.specular = Gs*Fs*Ds;
-    //float denominator = 4.0 * NdotV * NdotL + 0.0001;
-    //results.specular = Gs*Fs*Ds / denominator;
     results.clearCoat = vec3(0.25f*clearCoat*Gr*Fr*Dr);
 
     return results;

@@ -11,9 +11,9 @@ namespace BOSL
 		glm::vec3 vert;
 		// Position of pixel (0,0) in 3D space
 		glm::vec3 pixel00;
-		// Horizontal distance between adjacent pixel centers
+		// Distance between horizontally adjacent pixels
 		glm::vec3 deltaHoriz;
-		// Vertical distance between adjacent pixel centers
+		// Distance between vertically adjacent pixels
 		glm::vec3 deltaVert;
 	};
 
@@ -33,8 +33,7 @@ namespace BOSL
 
 		void setVFOV(float vfov);
 		
-		// Returns Viewport (rectangle in 3D space)
-		// associated with camera
+		// Returns viewport associated with camera
 		Viewport calculateViewport() const;
 
 	private:
@@ -49,8 +48,8 @@ namespace BOSL
 		glm::vec3 up;
 		glm::vec3 right;
 
-		// Calculates direction vectors,
-		// using position, lookAt and worldUp
+		// Calculates direction vectors
+		// using position and lookAt
 		void calculateDirVecs();
 	};
 }

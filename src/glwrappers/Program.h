@@ -5,7 +5,8 @@
 #include "..\utils\Config.h"
 #include "Shader.h"
 
-namespace BOSL {
+namespace BOSL
+{
 	class Program
 	{
 	public:
