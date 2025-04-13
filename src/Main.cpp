@@ -37,14 +37,29 @@ int main()
         BOSL::initGL();
 
         // Set up scene                
-        BOSL::Scene scene = convergenceTest();                
         
+        BOSL::Scene scene;
+        
+        scene.cubemap.setDirName("SunriseCubemapBlurred");
+        scene.exposure = 2.0f;
+        scene.hemisphereSamples = 512;
+        
+        scene.spheres.push_back(BOSL::Sphere{glm::vec4(0.0f), 1.0f});
+
+        scene.camera.setPosition(glm::vec3(-3.0f,0.0f,0.0f));
+
+        scene.material.baseColor = glm::vec3(0.7f, 0.7f, 0.7f);
+        scene.material.metallic = 1.0f;
+        scene.material.roughness = 0.1f;        
+
         // Create renderer object
         BOSL::Renderer renderer(std::move(scene));
 
         unsigned int fCounter = 0; // frame counter               
         while (!window.shouldClose())
         {
+            //if (fCounter >= 64) { continue; }
+
             double startTime = glfwGetTime();
 
             renderer.render();
@@ -147,7 +162,6 @@ BOSL::Scene convergenceTest()
     
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
 
-    scene.useCubemap = true;
     scene.hemisphereSamples = 1024;
     scene.exposure = 3.0f;
 
@@ -163,6 +177,8 @@ BOSL::Scene convergenceTest()
 BOSL::Scene spheres()
 {
     BOSL::Scene scene;
+
+    scene.useCubemap = false;
 
     scene.pLight.position = glm::vec3(2.0f, 2.0f, 10.0f);
     scene.pLight.emission = glm::vec3(3.0f);
@@ -188,7 +204,6 @@ BOSL::Scene threeLobes()
 {
     BOSL::Scene scene;
     
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 3.0f;
 
@@ -215,23 +230,17 @@ BOSL::Scene goldenHour()
 
     scene.spheres.push_back(BOSL::Sphere{ glm::vec4(0.0f,0.0f,0.0f,1.0f), 1.0f });
 
-    scene.camera.setPosition(glm::vec3(3.5f, 0.0f, 1.8f));
+    scene.camera.setPosition(glm::vec3(1.5f, -0.5f, -3.5f));
 
     scene.camera.setVFOV(45.0f);
 
     scene.cubemap.setDirName("SunriseCubemap");
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
-    
-    scene.material.specular = 1.0f;
-    scene.material.specularTint = 1.0f;
-    scene.material.anisotropic = 1.0f;
 
     scene.material.baseColor = glm::vec3(0.73f, 0.56f, 0.3f);
-
     scene.material.metallic = 1.0f;
-    scene.material.roughness = 0.3f;
+    scene.material.roughness = 0.1f;
 
     return scene;
 }
@@ -249,7 +258,6 @@ BOSL::Scene plane()
     scene.triangles.push_back(BOSL::Triangle(v0, v2, v3));
 
     scene.cubemap.setDirName("SunriseCubemap");
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
 
@@ -268,7 +276,6 @@ BOSL::Scene sheen()
 {
     BOSL::Scene scene;
 
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 3.0f;
 
@@ -284,7 +291,7 @@ BOSL::Scene sheen()
     scene.useRoughnessMap = true;
 
     scene.material.sheen = 1.0f;
-    //scene.material.sheenTint = 1.0f;
+    scene.material.sheenTint = 1.0f;
 
     return scene;
 }
@@ -296,7 +303,6 @@ BOSL::Scene elephant()
     scene.triangles = loadObj(BOSL::config::modelsDir + "\\elephant.obj");
 
     scene.cubemap.setDirName("SunriseCubemapBlurred");
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 2.0f;
 
@@ -316,7 +322,6 @@ BOSL::Scene suzanne()
 {
     BOSL::Scene scene;
 
-    scene.useCubemap = true;
     scene.hemisphereSamples = 4096;
     scene.exposure = 3.0f;
     

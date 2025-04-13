@@ -70,12 +70,12 @@ namespace BOSL
 		, normalMap(config::texturesDir + "\\DefaultBricks\\normalDX.jpg", GL_RGB)
 		, metallicMap(config::texturesDir + "\\DefaultBricks\\metallic.jpg", GL_RED)
 		, roughnessMap(config::texturesDir + "\\DefaultBricks\\roughness.jpg", GL_RED)
-		, useCubemap(false)
+		, useCubemap(true)
 		, useAlbedoMap(false)
 		, useNormalMap(false)
 		, useMetallicMap(false)
 		, useRoughnessMap(false)
-		, hemisphereSamples(16)
+		, hemisphereSamples(256)
 		, exposure(3.0f)
 	{
 		// Left intentionally empty

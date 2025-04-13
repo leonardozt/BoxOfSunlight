@@ -73,8 +73,8 @@ void main() {
                 vec3 Li = texture(cubemap, L).rgb;
                 
                 DisneyResults results = disneyBRDF(L, V, N, T, B, newMaterial); 
-                vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;
-                
+                vec3 brdfValue = results.diffuse + results.specular + results.clearCoat;                
+
                 Lo += brdfValue * Li * NdotL;               
             }
             Lo *= (2*PI)/(hemisphereSamples);
