@@ -39,7 +39,7 @@ int main()
         // Set up scene                
         
         BOSL::Scene scene;
-        
+                
         scene.cubemap.setDirName("SunriseCubemapBlurred");
         scene.exposure = 2.0f;
         scene.hemisphereSamples = 512;
