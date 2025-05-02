@@ -3,8 +3,6 @@
 
 ![Rock](https://github.com/user-attachments/assets/b2c8d533-bc97-43c0-971f-6a5f34c825ee)
 
-![NormalMapExample](https://github.com/user-attachments/assets/ce2e6d86-e596-4a9d-a6e3-66a139a9e694)
-
 ![DiffuseSpecularClearcoat2](https://github.com/user-attachments/assets/41a921f6-ca25-4fe8-90ae-9eb52c6ea7f2)
 
 ![FabricSheen1](https://github.com/user-attachments/assets/507c225d-42d2-45f8-b785-66f058bfe98b)
